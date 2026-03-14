@@ -158,6 +158,12 @@ Hệ thống xHR được thiết kế để phục vụ quy mô lớn (10.000+ 
 - ⚡ **Real-time Alerting**: Tự động nhắc lịch qua Telegram (Hộ chiếu, Hợp đồng, BHXH).
 - 📊 **Hybrid Data Access**: Kết hợp dữ liệu từ SQL (chính xác tuyệt đối) và Vector Search (linh hoạt).
 - 🔒 **Security & Audit**: Phân quyền truy cập tài liệu theo phòng ban và ghi nhật ký Audit Log chi tiết.
+- ⏰ **Automated Workflows**: Hệ thống tự động xử lý các tác vụ lặp lại thông qua APScheduler:
+    - **Nhắc lịch**: Điểm danh (4 lần/ngày), đóng BHXH (ngày 20 hàng tháng).
+    - **Cảnh báo**: Hộ chiếu/Visa hết hạn (<90 ngày), Hợp đồng hết hạn (<60 ngày).
+    - **AI Email**: Tự động dùng Claude soạn và gửi email nhắc gia hạn hợp đồng cho học viên.
+    - **Phê duyệt**: Nhắc trình ký tồn đọng mỗi 30 phút.
+    - **Báo cáo**: Tự động gửi báo cáo tổng hợp cho Lãnh đạo vào chiều thứ Sáu.
 
 ---
 
