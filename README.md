@@ -11,7 +11,7 @@
 [![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-ff4b4b?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech)
 [![Redis](https://img.shields.io/badge/Redis-Cache-d82c20?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
 
-> **5 AI agents chuyên biệt** — tự động hoá quy trình HR và quản lý tri thức (RAG) thông qua Telegram Bot, tích hợp đa mô hình AI tiên tiến: **Claude 3.5 Sonnet**, **Claude 3 Haiku**, **Qwen2.5-VL** và **Qdrant Vector DB**.
+> **Nền tảng đa kênh (Telegram & Web)** — 5 AI agents chuyên biệt hỗ trợ tự động hoá quy trình HR và quản lý tri thức (RAG). Tích hợp đa mô hình AI tiên tiến: **Claude 3.5 Sonnet**, **Claude 3 Haiku**, **Qwen2.5-VL** và **Qwen3-Embedding**.
 
 </div>
 
@@ -21,12 +21,11 @@
 
 - [Tổng quan](#-tổng-quan)
 - [Kiến trúc hệ thống đa tầng](#-kiến-trúc-hệ-thống-đa-tầng)
+- [🖥️ Web Platform — AI Command Center](#️-web-platform--ai-command-center)
 - [🤖 5 MOLTY Agents](#-5-molty-agents)
 - [🛠 AI Stack & Các mô hình AI sử dụng](#-ai-stack--các-mô-hình-ai-sử-dụng)
 - [✨ Tính năng](#-tính-năng)
-- [💰 Chiến lược tối ưu chi phí (Cost Efficiency)](#-chiến-lược-tối-ưu-chi-phí-cost-efficiency)
 - [🚀 Cài đặt & Chạy](#-cài-đặt--chạy)
-- [🔌 API Endpoints](#-api-endpoints)
 
 ---
 
@@ -71,6 +70,26 @@ graph TD
         Embed --> VDB
     end
 ```
+
+---
+
+## 🖥️ Web Platform — AI Command Center
+
+Bên cạnh giao diện Telegram, **xHR** cung cấp một trang điều hành tập trung (Command Center) với thiết kế **Glassmorphism** cao cấp, tối ưu cho việc giám sát chiến lược và quản trị dữ liệu lớn.
+
+### 📊 CEO Dashboard
+*   **Bản đồ Nhân lực**: Theo dõi sự phân bổ lao động toàn cầu theo thời gian thực.
+*   **Chiến lược & Rủi ro**: AI phân tích các chỉ số rủi ro theo từng phòng ban và dự báo xu hướng tăng trưởng.
+*   **Cảnh báo Thông minh**: Tổng hợp các vấn đề cấp bách cần Lãnh đạo phê duyệt hoặc xử lý.
+
+### 📥 Trung tâm Nạp tri thức (Ingestion Center)
+*   **Pipeline Xử lý**: Theo dõi trực quan quá trình OCR và Vector hóa tài liệu.
+*   **Local Folder Sync**: Tự động giám sát và nạp dữ liệu từ các thư mục máy quét nội bộ.
+*   **Tải lên Thủ công**: Hỗ trợ kéo thả PDF, Word và Hình ảnh để mở rộng kho tri thức RAG.
+
+### 🧠 Kho Tri thức & Chat
+*   **Semantic Search**: Tìm kiếm nội dung theo ngữ nghĩa, bỏ qua rào cản từ khóa thông thường.
+*   **Đa Agent**: Chat trực tiếp với 5 MOLTY Agents (CEO, Nhật Bản, Thuyền viên, Đào tạo, Hành chính) ngay trên nền tảng Web.
 
 ---
 
@@ -173,11 +192,16 @@ Hệ thống xHR được thiết kế để phục vụ quy mô lớn (10.000+ 
 # 1. Clone & Cấu hình môi trường
 cp .env.example .env
 
-# 2. Khởi chạy Full-stack (FastAPI, Postgres, Qdrant, Redis, PgAdmin)
+# 2. Khởi chạy Backend & Databases (Docker)
 docker-compose up -d --build
 
 # 3. Migrate Database
 docker-compose exec app alembic upgrade head
+
+# 4. Chạy Frontend (Web UI)
+cd web
+npm install
+npm run dev
 ```
 
 ---

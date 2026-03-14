@@ -6,6 +6,9 @@ import uuid
 import structlog
 from pdf2image import convert_from_bytes
 from src.integrations import qwen_client, qdrant_client, xor_storage
+from src.database import get_db, engine
+from src.database.models import TaiLieu, TinhTrangTaiLieu
+from sqlalchemy import update
 
 log = structlog.get_logger(__name__)
 
@@ -19,8 +22,24 @@ async def process_document(object_name: str, metadata: dict):
     5. Gọi Qwen3-Embedding để lấy vector.
     6. Lưu vào Qdrant với metadata.
     """
+    doc_id = metadata.get("doc_id")
+    
+    async def update_status(status: TinhTrangTaiLieu = None, ocr_p: int = None, vec_p: int = None, error: str = None):
+        if not doc_id: return
+        async with engine.begin() as conn:
+            values = {}
+            if status: values["tinh_trang"] = status
+            if ocr_p is not None: values["tien_do_ocr"] = ocr_p
+            if vec_p is not None: values["tien_do_vector"] = vec_p
+            if error: values["loi_nhan"] = error
+            
+            await conn.execute(
+                update(TaiLieu).where(TaiLieu.id == doc_id).values(**values)
+            )
+
     try:
-        log.info("processing_document_start", object=object_name)
+        log.info("processing_document_start", object=object_name, doc_id=doc_id)
+        await update_status(status=TinhTrangTaiLieu.dang_ocr, ocr_p=5)
         
         # 1. Download
         content = await xor_storage.storage.download_file(object_name)
@@ -40,6 +59,12 @@ async def process_document(object_name: str, metadata: dict):
             log.info("ocr_page", page=i+1)
             page_text = await qwen_client.get_image_description(img_bytes)
             full_markdown += f"\n\n--- Page {i+1} ---\n\n" + page_text
+            
+            # Cập nhật tiến độ OCR
+            progress = int(((i + 1) / len(images)) * 100)
+            await update_status(ocr_p=progress)
+
+        await update_status(status=TinhTrangTaiLieu.dang_vector_hoa, ocr_p=100)
 
         # 4. Chunking (Đơn giản hóa: cắt theo trang hoặc độ dài)
         # TODO: Implement thông minh hơn với RecursiveCharacterTextSplitter
@@ -64,9 +89,16 @@ async def process_document(object_name: str, metadata: dict):
                 "payload": payload
             })
             
+            # Cập nhật tiến độ Vector
+            idx = chunks.index(chunk)
+            v_progress = int(((idx + 1) / len(chunks)) * 100)
+            await update_status(vec_p=v_progress)
+            
         await qdrant_client.upsert_points(points)
+        await update_status(status=TinhTrangTaiLieu.hoan_thanh, vec_p=100)
         log.info("processing_document_complete", object=object_name, chunks=len(chunks))
         
     except Exception as exc:
         log.error("processing_document_failed", object=object_name, error=str(exc))
+        await update_status(status=TinhTrangTaiLieu.loi, error=str(exc))
         raise

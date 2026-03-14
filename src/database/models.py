@@ -339,8 +339,34 @@ class ThuyEnVienDonHang(Base):
 
 
 # ─────────────────────────────────────────────
-# Audit Log
+# G — Knowledge Base & Docs
 # ─────────────────────────────────────────────
+
+class TinhTrangTaiLieu(str, enum.Enum):
+    cho_xu_ly = "cho_xu_ly"
+    dang_ocr = "dang_ocr"
+    dang_vector_hoa = "dang_vector_hoa"
+    hoan_thanh = "hoan_thanh"
+    loi = "loi"
+
+
+class TaiLieu(Base):
+    """Quản lý tài liệu nạp vào kho tri thức."""
+    __tablename__ = "tai_lieu"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ten_file = Column(String(300), nullable=False)
+    dung_luong = Column(BigInteger)           # bytes
+    loai_file = Column(String(50))           # pdf, jpeg, ...
+    duong_dan_storage = Column(String(500))  # S3/Ceph path
+    phong_ban = Column(Enum(PhongBan), nullable=True)
+    tinh_trang = Column(Enum(TinhTrangTaiLieu), default=TinhTrangTaiLieu.cho_xu_ly)
+    tien_do_ocr = Column(Integer, default=0)
+    tien_do_vector = Column(Integer, default=0)
+    loi_nhan = Column(Text)
+    ngay_tao = Column(DateTime(timezone=True), server_default=func.now())
+    ngay_cap_nhat = Column(DateTime(timezone=True), onupdate=func.now())
+
 
 class AuditLog(Base):
     """Ghi log mọi hành động của agent."""

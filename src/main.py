@@ -16,6 +16,8 @@ from src.database.models import Base
 from src.integrations.telegram_bot import register_webhook, verify_webhook_secret
 from src.router import route_update
 from src.scheduler import setup_scheduler
+from src.api_router import router as api_router
+from fastapi.middleware.cors import CORSMiddleware
 
 log = structlog.get_logger(__name__)
 
@@ -53,10 +55,22 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="xHR — AI-native HR Platform",
-    description="Thinh Long Group | 5 MOLTY Agents via Telegram Bot",
+    description="Thinh Long Group | 5 MOLTY Agents via Telegram Bot & Web UI",
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# --- CORS ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Phát triển thì để *, production nên giới hạn
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Connect REST API
+app.include_router(api_router)
 
 
 # ─── Routes ───────────────────────────────────────────────────────────
