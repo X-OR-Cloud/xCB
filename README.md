@@ -49,7 +49,9 @@ graph TD
     Cache -->|Miss| T_Router[Telegram Message Router]
     
     subgraph "Nghiệp vụ Routing"
-        T_Router -->|Regex/Fallback| Agent[MOLTY Agents]
+        T_Router -->|Regex/Match| Agent[MOLTY Agents]
+        T_Router -->|Fallback/Intent| Haiku[[Claude 3 Haiku - Router]]
+        Haiku --> Agent
         API_Router -->|Agent ID| Agent
     end
     
