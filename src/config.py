@@ -36,5 +36,21 @@ class Settings(BaseSettings):
     app_host: str = "0.0.0.0"
     app_port: int = 8000
 
+    # X-OR Storage (CEPH)
+    xor_access_key: str | None = None
+    xor_secret_key: str | None = None
+    xor_endpoint_url: str = "https://s3.x-or.cloud"
+    xor_bucket_name: str = "xhr-docs"
+
+    # Qdrant
+    qdrant_url: str = "http://qdrant:6333"
+    qdrant_api_key: str | None = None
+
+    # Qwen Inference
+    qwen_api_base: str | None = None
+    qwen_api_key: str | None = None
+    qwen_vl_model: str = "Qwen/Qwen2.5-VL-72B-Instruct"
+    qwen_embed_model: str = "Qwen/Qwen3-Embedding-8B"
+
 
 settings = Settings()

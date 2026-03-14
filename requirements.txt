@@ -10,8 +10,18 @@ alembic==1.14.0
 # HTTP client
 httpx==0.28.1
 
-# AI
+# AI & Vector DB
 anthropic==0.40.0
+qdrant-client==1.12.1
+
+# Object Storage (CEPH/S3)
+boto3==1.35.81
+aioboto3==13.3.0
+
+# Document Processing
+pdf2image==1.17.0
+pillow==11.0.0
+python-multipart==0.0.19
 
 # Scheduler
 apscheduler==3.10.4

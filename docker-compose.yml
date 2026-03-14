@@ -46,5 +46,16 @@ services:
     depends_on:
       - db
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: xhr_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
 volumes:
   postgres_data:
+  qdrant_data:

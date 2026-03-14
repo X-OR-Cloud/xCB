@@ -94,8 +94,17 @@ class BaseAgent(ABC):
         return None
 
     async def _default_reply(self, message: str, nhan_vien: NhanVien) -> str:
-        """Fallback: gọi Claude trực tiếp với system prompt của agent."""
-        greeting = f"Xin chào {nhan_vien.ho_ten}!"
+        """Fallback: Tìm kiếm RAG trước khi gọi Claude."""
+        from src.skills.rag_base import search_knowledge_base, generate_rag_answer
+        
+        # 1. Tìm ngữ cảnh từ văn bản (PDF, Word)
+        context = await search_knowledge_base(message, nhan_vien)
+        
+        if context:
+            log.info("rag_match_found", agent=self.AGENT_ID)
+            return await generate_rag_answer(self.SYSTEM_PROMPT, message, context)
+
+        # 2. Nếu không có ngữ cảnh, fallback về Claude thông thường
         system = self.SYSTEM_PROMPT + f"\n\nBạn đang hỗ trợ nhân viên: {nhan_vien.ho_ten} ({nhan_vien.phong_ban})."
         return await claude_client.ask_claude(system_prompt=system, user_message=message)
 

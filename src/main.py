@@ -4,7 +4,10 @@ src/main.py — FastAPI app entry point cho xHR
 import structlog
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi import (
+    Depends, FastAPI, Header, HTTPException, Request, status,
+    File, UploadFile, Form, BackgroundTasks
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
@@ -28,12 +31,15 @@ async def lifespan(app: FastAPI):
     if settings.app_env == "development":
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        log.info("db_tables_created")
-
     # Khởi động scheduler
     scheduler = setup_scheduler()
     scheduler.start()
     log.info("scheduler_started")
+
+    # Khởi tạo Qdrant
+    from src.integrations.qdrant_client import init_qdrant
+    await init_qdrant()
+    log.info("qdrant_initialized")
 
     yield  # ← App đang chạy
 
@@ -93,6 +99,52 @@ async def admin_register_webhook(webhook_url: str):
     """
     result = await register_webhook(webhook_url)
     return {"result": result}
+
+
+@app.post("/admin/upload-document", tags=["Admin"])
+async def admin_upload_document(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    phong_ban: str = Form("hanh_chinh"),
+    description: str = Form(None)
+):
+    """
+    Tải lên tài liệu mới (PDF/Word), lưu vào CEPH và kích hoạt xử lý OCR/RAG.
+    """
+    from src.integrations.xor_storage import storage
+    from src.workers.document_processor import process_document
+    import uuid
+
+    # 1. Đọc file
+    content = await file.read()
+    file_ext = file.filename.split(".")[-1]
+    object_name = f"docs/{uuid.uuid4()}.{file_ext}"
+
+    # 2. Upload lên CEPH
+    try:
+        await storage.upload_file(
+            file_content=content,
+            object_name=object_name,
+            content_type=file.content_type
+        )
+    except Exception as exc:
+        log.error("admin_upload_error", error=str(exc))
+        raise HTTPException(status_code=500, detail=f"Lỗi upload storage: {str(exc)}")
+
+    # 3. Kích hoạt xử lý background (OCR -> Vector)
+    metadata = {
+        "original_filename": file.filename,
+        "phong_ban": phong_ban,
+        "description": description
+    }
+    
+    background_tasks.add_task(process_document, object_name, metadata)
+    
+    return {
+        "status": "uploaded",
+        "object_name": object_name,
+        "message": "Tài liệu đang được xử lý OCR và Vectorization ngầm."
+    }
 
 
 @app.get("/admin/status", tags=["Admin"])
