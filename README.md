@@ -126,6 +126,7 @@ graph TD
 Hệ thống được thiết kế để vận hành hiệu quả với chi phí tối thiểu thông qua các chiến lược:
 
 - **Model Tiering**: Sử dụng **Claude 3 Haiku** cho các tác vụ phân loại Intent (tiết kiệm ~12 lần so với Sonnet).
+- **Outcome Caching (Redis)**: Lưu trữ câu trả lời của AI cho các câu hỏi trùng lặp trong 24 giờ. Tiết kiệm **100% chi phí AI** cho các yêu cầu lặp lại.
 - **Prompt Caching**: Kích hoạt bộ nhớ đệm (Caching) cho System Prompts và ngữ cảnh RAG dài, giảm chi phí Input Token tới 50-90%.
 - **Image Optimization**: Tự động nén và resize ảnh (max 1500px) trước khi gửi qua Qwen-VL, giảm 60-70% số lượng Vision Tokens tiêu thụ.
 - **Regex Fast-path**: Ưu tiên xử lý bằng mẫu định sẵn trước khi gọi LLM để tiết kiệm 100% token cho các lệnh phổ biến.

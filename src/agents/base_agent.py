@@ -38,9 +38,17 @@ class BaseAgent(ABC):
     ) -> str:
         """
         Xử lý tin nhắn và trả về nội dung reply.
-        Luồng: regex matching → Claude intent classification → fallback.
+        Luồng: Cache check → Regex matching → Claude intent classification → fallback.
         """
         log.info("agent_handle", agent=self.AGENT_ID, user_id=nhan_vien.telegram_user_id)
+        user_id = nhan_vien.telegram_user_id
+
+        # 0. Check Caching (Tiết kiệm 100% chi phí cho câu hỏi lặp lại)
+        from src.integrations.redis_client import get_cached_response, set_cached_response
+        cached_res = await get_cached_response(self.AGENT_ID, user_id, message)
+        if cached_res:
+            log.info("cache_hit", agent=self.AGENT_ID, user_id=user_id)
+            return cached_res + "\n\n(⚡ Phản hồi từ bộ nhớ đệm)"
 
         # 1. Regex fast-path
         skill_name = self._match_regex(message)
@@ -66,6 +74,10 @@ class BaseAgent(ABC):
             reply = "⚠️ Đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại sau."
             await self._audit(db, nhan_vien, f"skill:{skill_name}", message, reply, success=False)
             return reply
+
+        # 4. Save to Cache
+        if reply:
+            await set_cached_response(self.AGENT_ID, user_id, message, reply)
 
         await self._audit(db, nhan_vien, f"skill:{skill_name}", message, reply, success=True)
         return reply

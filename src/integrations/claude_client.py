@@ -16,51 +16,44 @@ async def ask_claude(
     user_message: str,
     history: list[dict] | None = None,
     max_tokens: int = 2048,
+    model: str | None = None  # Cho phép chọn model linh hoạt
 ) -> str:
     """
-    Gửi message tới Claude và nhận phản hồi dạng string.
-
-    Args:
-        system_prompt: System prompt của agent (tiếng Việt).
-        user_message: Tin nhắn người dùng.
-        history: Lịch sử hội thoại [{"role": "user"|"assistant", "content": "..."}]
-        max_tokens: Giới hạn token phản hồi.
-
-    Returns:
-        Nội dung phản hồi từ Claude.
+    Gửi message tới Claude.
+    Hỗ trợ Prompt Caching của Anthropic nếu system_prompt đủ dài.
     """
     messages: list[dict] = []
     if history:
         messages.extend(history)
     messages.append({"role": "user", "content": user_message})
 
+    # Sử dụng Sonnet làm mặc định cho chất lượng, Haiku cho tốc độ/giá
+    selected_model = model or settings.claude_model or "claude-3-5-sonnet-20241022"
+
     try:
         response = await _client.messages.create(
-            model=settings.claude_model,
+            model=selected_model,
             max_tokens=max_tokens,
             temperature=0.2,
-            system=system_prompt,
+            system=[
+                {
+                    "type": "text", 
+                    "text": system_prompt,
+                    "cache_control": {"type": "ephemeral"} if len(system_prompt) > 1024 else None
+                }
+            ],
             messages=messages,
         )
         reply = response.content[0].text
-        log.info("claude_response", model=settings.claude_model, tokens_used=response.usage.output_tokens)
+        log.info("claude_response", model=selected_model, tokens=response.usage.output_tokens)
         return reply
     except Exception as exc:
         log.error("claude_error", error=str(exc))
         raise
 
-
 async def classify_intent(agent_name: str, skills: list[str], user_message: str) -> str:
     """
-    Dùng Claude để phân loại intent → trả về tên skill phù hợp nhất.
-
-    Args:
-        agent_name: Tên agent (ví dụ: MOLTY-NB).
-        skills: Danh sách tên skills mà agent hỗ trợ.
-        user_message: Tin nhắn người dùng cần phân loại.
-
-    Returns:
-        Tên skill (phải nằm trong danh sách skills), hoặc "unknown".
+    Dùng Claude 3 Haiku để phân loại intent (Rẻ hơn 12 lần so với Sonnet).
     """
     skill_list = "\n".join(f"- {s}" for s in skills)
     system = (
@@ -68,7 +61,13 @@ async def classify_intent(agent_name: str, skills: list[str], user_message: str)
         f"Chỉ trả lời bằng ĐÚNG MỘT tên skill từ danh sách sau, không giải thích thêm:\n{skill_list}\n"
         f"Nếu không phù hợp skill nào, trả lời: unknown"
     )
-    result = await ask_claude(system_prompt=system, user_message=user_message, max_tokens=50)
+    # Ép buộc sử dụng Haiku cho task này
+    result = await ask_claude(
+        system_prompt=system, 
+        user_message=user_message, 
+        max_tokens=50,
+        model="claude-3-haiku-20240307" 
+    )
     intent = result.strip().lower()
     if intent not in [s.lower() for s in skills] and intent != "unknown":
         return "unknown"

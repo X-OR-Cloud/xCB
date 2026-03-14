@@ -52,5 +52,8 @@ class Settings(BaseSettings):
     qwen_vl_model: str = "Qwen/Qwen2.5-VL-72B-Instruct"
     qwen_embed_model: str = "Qwen/Qwen3-Embedding-8B"
 
+    # Redis (Caching)
+    redis_url: str = "redis://redis:6379/0"
+
 
 settings = Settings()

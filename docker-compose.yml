@@ -56,6 +56,16 @@ services:
     volumes:
       - qdrant_data:/qdrant/storage
 
+  redis:
+    image: redis:7-alpine
+    container_name: xhr_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   postgres_data:
   qdrant_data:
+  redis_data:
