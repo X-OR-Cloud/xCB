@@ -41,17 +41,17 @@ Hệ thống được thiết kế để cân bằng giữa **Độ chính xác*
 
 ```mermaid
 graph TD
-    User((Telegram User)) -->|Tin nhắn| Cache{Redis Cache}
-    Cache -->|Hit| User
-    Cache -->|Miss| Router[Message Router]
+    TUser((Telegram User)) -->|Tin nhắn| Cache{Redis Cache}
+    WUser((Web User)) -->|Click/Chat| WebUI[xHR Web Command Center]
+    
+    WebUI -->|REST API| API_Router[Web API Router]
+    Cache -->|Hit| TUser
+    Cache -->|Miss| T_Router[Telegram Message Router]
     
     subgraph "Nghiệp vụ Routing"
-        Router -->|Regex| Match[Skill Direct Move]
-        Router -->|Fallback| Haiku[[Claude 3 Haiku - Intent Classifier]]
+        T_Router -->|Regex/Fallback| Agent[MOLTY Agents]
+        API_Router -->|Agent ID| Agent
     end
-
-    Haiku --> Agent[MOLTY Agents]
-    Match --> Agent
     
     subgraph "Reasoning & Knowledge"
         Agent -->|SQL Query| DB[(PostgreSQL 16)]
@@ -61,10 +61,12 @@ graph TD
     end
 
     Sonnet -->|Trả lời thông minh| Cache
-    Sonnet --> User
+    Sonnet --> TUser
+    Sonnet -->|JSON Result| API_Router
+    API_Router --> WebUI
 
     subgraph "Ingestion Pipeline"
-        Doc[Tài liệu PDF/Word/Ảnh] --> CEPH[(X-OR CLOUD - S3)]
+        WebUI -->|Upload| CEPH[(X-OR CLOUD - S3)]
         CEPH --> Qwen[[Qwen2.5-VL-72B - Image OCR]]
         Qwen --> Embed[[Qwen3-Embedding - Vectorize]]
         Embed --> VDB
