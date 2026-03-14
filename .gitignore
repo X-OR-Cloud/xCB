@@ -1,0 +1,17 @@
+.env
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+*.log
+alembic/versions/*.pyc
+.claude/
+.venv/
+alembic/versions/__pycache__/
