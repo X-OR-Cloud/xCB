@@ -25,6 +25,7 @@
 - [🤖 5 MOLTY Agents](#-5-molty-agents)
 - [AI Stack & Công nghệ](#-ai-stack--công-nghệ)
 - [✨ Tính năng](#-tính-năng)
+- [💰 Tối ưu hóa chi phí](#-tối-ưu-hóa-chi-phí)
 - [🚀 Cài đặt & Chạy](#-cài-đặt--chạy)
 - [🔌 API Endpoints](#-api-endpoints)
 - [⏰ Tác vụ tự động](#-tác-vụ-tự-động)
@@ -117,6 +118,17 @@ graph TD
 - ✅ Cảnh báo **Hợp đồng** hết hạn (7:30 AM daily - ngưỡng 60 ngày).
 - ✅ Nhắc **đóng BHXH** (Ngày 20 hàng tháng - 9:00 AM).
 - ✅ Báo cáo tuần & Kiểm tra trình ký định kỳ (mỗi 30 phút).
+
+---
+
+## 💰 Tối ưu hóa chi phí (AI Cost Optimization)
+
+Hệ thống được thiết kế để vận hành hiệu quả với chi phí tối thiểu thông qua các chiến lược:
+
+- **Model Tiering**: Sử dụng **Claude 3 Haiku** cho các tác vụ phân loại Intent (tiết kiệm ~12 lần so với Sonnet).
+- **Prompt Caching**: Kích hoạt bộ nhớ đệm (Caching) cho System Prompts và ngữ cảnh RAG dài, giảm chi phí Input Token tới 50-90%.
+- **Image Optimization**: Tự động nén và resize ảnh (max 1500px) trước khi gửi qua Qwen-VL, giảm 60-70% số lượng Vision Tokens tiêu thụ.
+- **Regex Fast-path**: Ưu tiên xử lý bằng mẫu định sẵn trước khi gọi LLM để tiết kiệm 100% token cho các lệnh phổ biến.
 
 ---
 
