@@ -15,3 +15,5 @@ alembic/versions/*.pyc
 .claude/
 .venv/
 alembic/versions/__pycache__/
+web/node_modules/
+web/dist/
