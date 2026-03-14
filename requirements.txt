@@ -25,3 +25,4 @@ structlog==24.4.0
 
 # Utilities
 pytz==2024.2
+aiosmtplib==3.0.1

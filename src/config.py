@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     # Telegram
     telegram_bot_token: str
     telegram_webhook_secret: str
+    
+    # Email / SMTP
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    email_from: str = "xhr-noreply@thinhlonggroup.com"
 
     # App
     app_env: str = "development"

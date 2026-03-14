@@ -15,6 +15,8 @@ from src.database.models import (
     TinhTrangTrinhKy, TrinhKy, PhongBan,
 )
 from src.integrations.telegram_bot import send_message
+from src.integrations.email_service import send_email
+from src.integrations.claude_client import ask_claude
 
 log = structlog.get_logger(__name__)
 
@@ -142,30 +144,59 @@ async def job_canh_bao_ho_chieu() -> None:
 
 
 async def job_canh_bao_hop_dong() -> None:
-    """Cảnh báo hợp đồng hết hạn trong 60 ngày lúc 7:30."""
+    """Cảnh báo hợp đồng hết hạn trong 60 ngày lúc 7:30 và gửi email nhắc gia hạn."""
     log.info("job_canh_bao_hop_dong")
     threshold = date.today() + timedelta(days=60)
 
     async with AsyncSessionLocal() as db:
+        # Lấy danh sách hợp đồng kèm thông tin lao động (để lấy email)
         result = await db.execute(
-            select(HopDong)
+            select(HopDong, LaoDong)
+            .join(LaoDong, HopDong.lao_dong_id == LaoDong.id)
             .where(
                 HopDong.tinh_trang == TinhTrangHopDong.hieu_luc,
                 HopDong.ngay_het_han <= threshold,
                 HopDong.ngay_het_han >= date.today(),
             )
         )
-        hd_list = result.scalars().all()
+        rows = result.all()
 
-    if not hd_list:
+    if not rows:
         return
 
-    msg = (
-        f"📋 *CẢNH BÁO: {len(hd_list)} hợp đồng sắp hết hạn*\n"
-        f"Trong vòng 60 ngày tới. Gõ `hợp đồng` để xem chi tiết."
+    # 1. Thông báo cho phòng Hành chính qua Telegram
+    msg_hc = (
+        f"📋 *CẢNH BÁO: {len(rows)} hợp đồng sắp hết hạn*\n"
+        f"Trong vòng 60 ngày tới. Hệ thống đang tự động gửi email nhắc gia hạn cho học viên.\n"
+        f"Gõ `hợp đồng` để xem chi tiết."
     )
     nv_hc = await _get_nv_with_telegram(PhongBan.hanh_chinh)
-    await _broadcast(nv_hc, msg)
+    await _broadcast(nv_hc, msg_hc)
+
+    # 2. Gửi email tự động cho từng học viên/lao động
+    for hd, ld in rows:
+        if not ld.email:
+            log.info("skip_email_no_address", ld=ld.ho_ten)
+            continue
+
+        # Dùng Claude soạn thảo nội dung email cá nhân hóa
+        prompt = (
+            f"Hãy viết một email chuyên nghiệp từ Thinh Long Group gửi cho học viên {ld.ho_ten}. "
+            f"Thông báo rằng hợp đồng số {hd.so_hop_dong} sẽ hết hạn vào ngày {hd.ngay_het_han}. "
+            f"Hướng dẫn học viên liên hệ phòng Hành chính để làm thủ tục gia hạn. "
+            f"Giọng văn: Lịch sự, hỗ trợ."
+        )
+        system = "Bạn là chuyên viên HR của Thinh Long Group, chuyên soạn thảo email chuyên nghiệp."
+        
+        try:
+            email_content = await ask_claude(system_prompt=system, user_message=prompt)
+            subject = f"[xHR] Thông báo nhắc gia hạn hợp đồng — {ld.ho_ten}"
+            
+            success = await send_email(ld.email, subject, email_content)
+            if success:
+                log.info("auto_renewal_email_success", ld=ld.ho_ten, email=ld.email)
+        except Exception as exc:
+            log.error("auto_renewal_email_error", ld=ld.ho_ten, error=str(exc))
 
 
 async def job_kiem_tra_trinh_ky() -> None:

@@ -40,6 +40,7 @@ class LaoDong(Base):
     so_cmnd = Column(String(20), unique=True)
     so_ho_chieu = Column(String(20), unique=True)
     so_dien_thoai = Column(String(20))
+    email = Column(String(200))              # Thêm email liên hệ của lao động/học viên
     dia_chi = Column(Text)
     thi_truong = Column(String(50))          # nhat_ban | han_quoc | dai_loan | ...
     tinh_trang = Column(Enum(TinhTrangLaoDong), default=TinhTrangLaoDong.dang_xu_ly)
