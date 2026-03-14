@@ -86,6 +86,40 @@ graph TD
 
 ---
 
+## 💡 Các kịch bản tương tác phổ biến
+
+Người dùng (nhân viên) có thể tương tác với các Agent thông qua Telegram bằng ngôn ngữ tự nhiên:
+
+### 🇯🇵 Thị trường Nhật Bản (MOLTY-NB)
+*   *"Danh sách 10 hồ sơ lao động mới nhập gần nhất"*
+*   *"Kiểm tra tiến độ pipeline của lao động Nguyễn Văn A"*
+*   *"Cảnh báo giúp tôi những hộ chiếu nào sắp hết hạn trong 3 tháng tới"*
+*   *"Báo cáo tổng quan tình hình thị trường Nhật Bản hiện tại"*
+
+### ⚓ Crew Management (MOLTY-TV)
+*   *"Tra cứu các đơn tàu đang tuyển thuyền viên gấp"*
+*   *"Thuyền viên Trần Văn B đã có đủ chứng chỉ chuyên môn chưa?"*
+*   *"Cho tôi xem lịch bay dự kiến của đoàn đi Hàn Quốc tuần sau"*
+*   *"RAG: Quy trình thay thế thuyền viên của chủ tàu Mitsui như thế nào?"*
+
+### 🖋️ Admin & Kế toán (MOLTY-HC)
+*   *"Kiểm tra xem tôi có văn bản nào đang chờ phê duyệt không?"*
+*   *"Liệt kê các khoản phí quá hạn thanh toán của các nghiệp đoàn"*
+*   *"Nhắc lịch đóng BHXH tháng này"*
+*   *"RAG: Theo quy định công ty, nhân viên làm việc 3 năm được hưởng bao nhiêu ngày phép?"*
+
+### 🎓 Trung tâm Đào tạo (MOLTY-DT)
+*   *"Báo cáo điểm danh lớp tiếng Nhật N4 sáng nay"*
+*   *"Lịch học và phòng học của các lớp khai giảng trong tháng 3"*
+*   *"Kết quả thi định kỳ của học viên lớp nguồn K25"*
+
+### 📊 Ban Lãnh đạo (MOLTY-CEO)
+*   *"Tổng doanh thu dự kiến của quý 1 là bao nhiêu?"*
+*   *"Phân tích rủi ro các đơn hàng bị chậm pipeline"*
+*   *"Gửi báo cáo nhanh về số lượng lao động đã xuất cảnh từ đầu năm"*
+
+---
+
 ## 🛠 AI Stack & Các mô hình AI sử dụng
 
 Dự án sử dụng chiến lược **Multi-LLM** để tối ưu hóa hiệu năng:
