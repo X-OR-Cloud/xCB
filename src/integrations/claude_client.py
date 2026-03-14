@@ -61,12 +61,12 @@ async def classify_intent(agent_name: str, skills: list[str], user_message: str)
         f"Chỉ trả lời bằng ĐÚNG MỘT tên skill từ danh sách sau, không giải thích thêm:\n{skill_list}\n"
         f"Nếu không phù hợp skill nào, trả lời: unknown"
     )
-    # Ép buộc sử dụng Haiku cho task này
+    # Sử dụng Haiku từ config cho task này
     result = await ask_claude(
         system_prompt=system, 
         user_message=user_message, 
         max_tokens=50,
-        model="claude-3-haiku-20240307" 
+        model=settings.claude_haiku_model
     )
     intent = result.strip().lower()
     if intent not in [s.lower() for s in skills] and intent != "unknown":

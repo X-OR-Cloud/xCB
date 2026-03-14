@@ -18,7 +18,8 @@ class Settings(BaseSettings):
 
     # Claude / Anthropic
     anthropic_api_key: str
-    claude_model: str = "claude-opus-4-6"
+    claude_model: str = "claude-3-5-sonnet-20241022"
+    claude_haiku_model: str = "claude-3-haiku-20240307"
 
     # Telegram
     telegram_bot_token: str
