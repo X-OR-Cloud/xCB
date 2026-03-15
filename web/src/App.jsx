@@ -213,11 +213,27 @@ const DashboardCEO = ({ stats, riskData }) => (
             <option>6 tháng qua</option>
           </select>
         </div>
-        <div className="h-48 flex items-end gap-3 px-2">
-           {[30, 45, 60, 40, 75, 90].map((h, i) => (
-             <div key={i} className="flex-1 bg-blue-600/20 rounded-t-lg relative group">
-                <div className="absolute inset-0 bg-blue-500 rounded-t-lg opacity-0 transition-opacity group-hover:opacity-100" />
-                <div className="absolute bottom-0 left-0 right-0 bg-blue-500 rounded-t-lg" style={{ height: `${h}%` }} />
+        <div className="h-48 flex items-end gap-4 px-2">
+           {[
+             { m: 'T10', v: 45, val: '$12.5M' },
+             { m: 'T11', v: 52, val: '$14.2M' },
+             { m: 'T12', v: 48, val: '$13.1M' },
+             { m: 'T1', v: 65, val: '$18.4M' },
+             { m: 'T2', v: 78, val: '$21.5M' },
+             { m: 'T3', v: 92, val: '$25.8M' }
+           ].map((data, i) => (
+             <div key={i} className="flex-1 flex flex-col items-center gap-3 group h-full">
+                <div className="w-full bg-blue-600/10 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full">
+                   <motion.div 
+                    initial={{ height: 0 }}
+                    animate={{ height: `${data.v}%` }}
+                    className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-xl group-hover:brightness-125 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
+                   />
+                   <div className="absolute top-2 opacity-0 group-hover:opacity-100 transition-all transform -translate-y-2 group-hover:translate-y-0 text-[10px] font-black text-white bg-blue-600 px-2 py-1 rounded-lg shadow-xl z-10">
+                    {data.val}
+                   </div>
+                </div>
+                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{data.m}</span>
              </div>
            ))}
         </div>
@@ -246,8 +262,25 @@ const DashboardCEO = ({ stats, riskData }) => (
   </motion.div>
 );
 
-const DataManager = ({ files, onUpload }) => {
+const DataManager = ({ onUpload }) => {
   const fileInputRef = useRef(null);
+  
+  // Mock data for storage and monthly usage
+  const storageStats = {
+    total: 12.5, // TB
+    used: 4.8,   // TB
+    percentage: 38.4,
+    monthlyUsage: [0.8, 1.2, 0.9, 1.5, 2.1, 1.8], // TB per month for last 6 months
+    months: ['T10', 'T11', 'T12', 'T1', 'T2', 'T3']
+  };
+
+  // Mock data for processing queue
+  const mockFiles = [
+    { ten_file: "HOP_DONG_LD_2024_V1.pdf", dung_luong: 4500, tien_do_ocr: 100, tien_do_vector: 85, status: 'processing' },
+    { ten_file: "BANG_DIEM_K25_MARCH.xlsx", dung_luong: 2100, tien_do_ocr: 100, tien_do_vector: 100, status: 'completed' },
+    { ten_file: "SCAN_HOSO_THUYENVIEN_001.jpg", dung_luong: 12000, tien_do_ocr: 45, tien_do_vector: 0, status: 'ocr_scanning' },
+    { ten_file: "CHINH_SACH_BAOHIEM_NHATBAN.pdf", dung_luong: 8500, tien_do_ocr: 0, tien_do_vector: 0, status: 'queued' }
+  ];
 
   const handleFileChange = (e) => {
     if (e.target.files?.[0]) {
@@ -266,6 +299,56 @@ const DataManager = ({ files, onUpload }) => {
           <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/10 px-4 py-2 rounded-full">
             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Hệ thống đang Sẵn sàng</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Storage Report Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="glass-card p-8 bg-blue-500/[0.02]">
+          <div className="flex items-center gap-4 mb-8">
+             <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center border border-blue-500/20">
+               <Database size={20} className="text-blue-500" />
+             </div>
+             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Dung lượng Lưu trữ</h3>
+          </div>
+          <div className="flex items-baseline gap-2 mb-2">
+            <h4 className="text-4xl font-black text-white">{storageStats.used}</h4>
+            <span className="text-lg font-bold text-slate-500">/ {storageStats.total} TB</span>
+          </div>
+          <div className="flex justify-between items-center mb-4 text-[10px] font-bold">
+             <span className="text-blue-400">ĐÃ SỬ DỤNG {storageStats.percentage}%</span>
+             <span className="text-slate-600">{storageStats.total - storageStats.used} TB CÒN TRỐNG</span>
+          </div>
+          <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000" style={{ width: `${storageStats.percentage}%` }} />
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 glass-card p-8 bg-white/[0.01]">
+          <div className="flex items-center justify-between mb-8">
+             <div className="flex items-center gap-4">
+               <div className="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center border border-purple-500/20">
+                 <TrendingUp size={20} className="text-purple-500" />
+               </div>
+               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Tình hình sử dụng trong tháng (TB)</h3>
+             </div>
+             <div className="px-3 py-1 bg-white/5 rounded-lg text-slate-500 text-[10px] font-bold">+24% so với năm ngoái</div>
+          </div>
+          <div className="h-24 flex items-end gap-4">
+            {storageStats.monthlyUsage.map((val, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                <div className="w-full bg-blue-600/10 rounded-t-lg relative flex items-end justify-center overflow-hidden">
+                   <motion.div 
+                    initial={{ height: 0 }}
+                    animate={{ height: `${(val / 2.5) * 100}%` }}
+                    className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg group-hover:brightness-125 transition-all"
+                   />
+                   <div className="absolute top-2 opacity-0 group-hover:opacity-100 transition-opacity text-[9px] font-bold text-white bg-black/50 px-1 rounded">{val}T</div>
+                </div>
+                <span className="text-[9px] font-bold text-slate-600 uppercase">{storageStats.months[i]}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -320,11 +403,12 @@ const DataManager = ({ files, onUpload }) => {
       {/* Processing Queue */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white">Hàng đợi Xử lý</h3>
+          <h3 className="text-xl font-bold text-white">Hàng đợi Xử lý (Mockdata)</h3>
+          <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-bold text-slate-500 uppercase tracking-widest">Đang xử lý: 3</span>
         </div>
 
         <div className="space-y-4">
-          {files.map((file, i) => (
+          {mockFiles.map((file, i) => (
             <div key={i} className="glass-card p-6 flex items-center gap-8 group hover:bg-white/[0.02] transition-all">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center border border-white/5 bg-blue-600/10">
                 <FileText size={20} className="text-slate-400" />
@@ -333,7 +417,7 @@ const DataManager = ({ files, onUpload }) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="text-sm font-bold text-white truncate">{file.ten_file}</h4>
-                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{Math.round(file.dung_luong / 1024)} KB</span>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{Math.round(file.dung_luong / 1024)} MB</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-8">
@@ -352,7 +436,9 @@ const DataManager = ({ files, onUpload }) => {
                   <div>
                     <div className="flex justify-between items-center mb-1.5">
                       <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">VECTOR</span>
-                      <span className="text-[9px] font-bold text-purple-400">{file.tien_do_vector}%</span>
+                      <span className={`text-[9px] font-bold ${file.tien_do_vector === 100 ? 'text-purple-500' : 'text-purple-400'}`}>
+                        {file.tien_do_vector}%
+                      </span>
                     </div>
                     <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                       <div className="h-full bg-purple-500" style={{ width: `${file.tien_do_vector}%` }} />
@@ -821,7 +907,7 @@ export default function App() {
 
     switch(activeTab) {
       case 'dashboard': return <DashboardCEO stats={dashboardStats} riskData={riskData} />;
-      case 'data': return <DataManager files={files} onUpload={handleUpload} />;
+      case 'data': return <DataManager onUpload={handleUpload} />;
       case 'kb': return <KnowledgeBase collections={collections} />;
       default: return <DashboardCEO stats={dashboardStats} riskData={riskData} />;
     }
