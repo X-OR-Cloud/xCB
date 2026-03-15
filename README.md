@@ -212,6 +212,9 @@ npm run dev
 
 <div align="center">
 
+## Về X-OR CLOUD
+xProxy là sản phẩm của X-OR CLOUD — nền tảng cloud và AI có chủ quyền hàng đầu tại Việt Nam và khu vực Đông Nam Á.
+
 **Built with ❤️ for Thinh Long Group**
 
 *Powered by [Anthropic Claude](https://anthropic.com) · [Qwen AI](https://github.com/QwenLM/Qwen) · [Qdrant](https://qdrant.tech) · [Redis](https://redis.io)*
