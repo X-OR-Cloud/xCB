@@ -5,10 +5,23 @@
 @tailwind utilities;
 
 :root {
-  --bg-dark: #0a0c10;
+  --bg-main: #f8fafc;
+  --sidebar-bg: #ffffff;
+  --card-bg: #ffffff;
+  --accent-blue: #3b82f6;
+  --accent-blue-rgb: 59, 130, 246;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --border-color: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --bg-main: #0a0c10;
   --sidebar-bg: #0c0e14;
   --card-bg: #11141b;
   --accent-blue: #2563eb;
+  --accent-blue-rgb: 37, 99, 235;
   --accent-glow: rgba(37, 99, 235, 0.4);
   --text-main: #e2e8f0;
   --text-muted: #94a3b8;
@@ -16,26 +29,27 @@
 }
 
 body {
-  @apply bg-[#0a0c10] text-[#e2e8f0] font-sans antialiased overflow-hidden;
-  background-image: radial-gradient(circle at 50% -20%, rgba(37, 99, 235, 0.15), transparent 70%);
+  @apply bg-[var(--bg-main)] text-[var(--text-main)] font-sans antialiased overflow-hidden transition-colors duration-500;
+  background-image: radial-gradient(circle at 50% -20%, var(--accent-glow), transparent 70%);
 }
 
 .glass-card {
-  background: rgba(17, 20, 27, 0.6);
+  background: var(--sidebar-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   @apply rounded-3xl transition-all duration-300;
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(17, 20, 27, 0.8);
+  border-color: rgba(var(--accent-blue-rgb), 0.2);
+  background: var(--sidebar-bg);
+  @apply shadow-lg;
 }
 
 .sidebar-item-active {
-  background: linear-gradient(90deg, rgba(37, 99, 235, 0.15) 0%, transparent 100%);
+  background: linear-gradient(90deg, var(--accent-glow) 0%, transparent 100%);
   border-left: 3px solid var(--accent-blue);
-  @apply text-white;
+  color: var(--accent-blue);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -47,16 +61,16 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  background: linear-gradient(90deg, transparent, var(--border-color), transparent);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }

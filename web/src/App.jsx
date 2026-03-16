@@ -33,7 +33,9 @@ import {
   Settings,
   X,
   Folder,
-  Activity
+  Activity,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -99,8 +101,8 @@ const StatCard = ({ icon: Icon, label, value, change, color }) => (
 const DashboardCEO = ({ stats, riskData }) => (
   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
     <div className="flex flex-col gap-1">
-      <h2 className="text-3xl font-black text-white tracking-tight">Tổng Quan Ban Lãnh Đạo</h2>
-      <p className="text-slate-500 text-sm">Hiệu suất vận hành thời gian thực trên toàn hệ thống xHR HRAgent.</p>
+      <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Tổng Quan Ban Lãnh Đạo</h2>
+      <p className="text-[var(--text-muted)] text-sm">Hiệu suất vận hành thời gian thực trên toàn hệ thống xHR HRAgent.</p>
     </div>
 
     {/* Top Row: KPIs */}
@@ -111,10 +113,10 @@ const DashboardCEO = ({ stats, riskData }) => (
         { label: "Chỉ số rủi ro", value: stats.risk_index || "---", change: stats.risk_change, color: "purple", progress: 15 },
         { label: "Mức độ hoàn thành mục tiêu", value: stats.goal_completion || "---", change: stats.goal_change, color: "emerald", progress: 88 }
       ].map((kpi, i) => (
-        <div key={i} className="glass-card p-6 border-white/[0.03]">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">{kpi.label}</p>
+        <div key={i} className="glass-card p-6 border-[var(--border-color)]">
+          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-4">{kpi.label}</p>
           <div className="flex items-baseline gap-2 mb-4">
-            <h3 className="text-2xl font-black text-white">{kpi.value}</h3>
+            <h3 className="text-2xl font-black text-[var(--text-main)]">{kpi.value}</h3>
             <span className={`text-[10px] font-bold ${kpi.change?.startsWith('+') ? 'text-green-500' : 'text-slate-500'}`}>{kpi.change}</span>
           </div>
           <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -130,9 +132,9 @@ const DashboardCEO = ({ stats, riskData }) => (
     {/* Middle Row: Map & Alerts */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Global Map */}
-      <div className="lg:col-span-8 glass-card p-8 bg-white/[0.01]">
+      <div className="lg:col-span-8 glass-card p-8">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-white">Phân bổ nguồn nhân lực toàn cầu</h3>
+          <h3 className="text-lg font-bold text-[var(--text-main)]">Phân bổ nguồn nhân lực toàn cầu</h3>
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -208,7 +210,7 @@ const DashboardCEO = ({ stats, riskData }) => (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <div className="lg:col-span-7 glass-card p-8">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-white">Xu hướng tăng trưởng doanh thu</h3>
+          <h3 className="text-lg font-bold text-[var(--text-main)]">Xu hướng tăng trưởng doanh thu</h3>
           <select className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-bold text-slate-400 outline-none">
             <option>6 tháng qua</option>
           </select>
@@ -241,7 +243,7 @@ const DashboardCEO = ({ stats, riskData }) => (
 
       <div className="lg:col-span-5 glass-card p-8">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-white">Phân tích rủi ro theo phòng ban</h3>
+          <h3 className="text-lg font-bold text-[var(--text-main)]">Phân tích rủi ro theo phòng ban</h3>
           <span className="px-3 py-1 rounded-lg bg-green-500/10 text-[9px] font-black text-green-500 uppercase tracking-widest border border-green-500/20">ỔN ĐỊNH</span>
         </div>
         <div className="space-y-6">
@@ -292,8 +294,8 @@ const DataManager = ({ onUpload }) => {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-3xl font-bold text-white tracking-tight">Trung tâm Nạp dữ liệu</h2>
-          <p className="text-slate-500 text-sm">Quản lý nạp tri thức và quy trình xử lý tài liệu</p>
+          <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight">Trung tâm Nạp dữ liệu</h2>
+          <p className="text-[var(--text-muted)] text-sm">Quản lý nạp tri thức và quy trình xử lý tài liệu</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/10 px-4 py-2 rounded-full">
@@ -310,7 +312,7 @@ const DataManager = ({ onUpload }) => {
              <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center border border-blue-500/20">
                <Database size={20} className="text-blue-500" />
              </div>
-             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Dung lượng Lưu trữ</h3>
+             <h3 className="text-sm font-bold text-[var(--text-main)] uppercase tracking-widest">Dung lượng Lưu trữ</h3>
           </div>
           <div className="flex items-baseline gap-2 mb-2">
             <h4 className="text-4xl font-black text-white">{storageStats.used}</h4>
@@ -331,7 +333,7 @@ const DataManager = ({ onUpload }) => {
                <div className="w-10 h-10 rounded-xl bg-purple-600/10 flex items-center justify-center border border-purple-500/20">
                  <TrendingUp size={20} className="text-purple-500" />
                </div>
-               <h3 className="text-sm font-bold text-white uppercase tracking-widest">Tình hình sử dụng trong tháng (TB)</h3>
+               <h3 className="text-sm font-bold text-[var(--text-main)] uppercase tracking-widest">Tình hình sử dụng trong tháng (TB)</h3>
              </div>
              <div className="px-3 py-1 bg-white/5 rounded-lg text-slate-500 text-[10px] font-bold">+24% so với năm ngoái</div>
           </div>
@@ -403,8 +405,8 @@ const DataManager = ({ onUpload }) => {
       {/* Processing Queue */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-bold text-white">Hàng đợi Xử lý (Mockdata)</h3>
-          <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-bold text-slate-500 uppercase tracking-widest">Đang xử lý: 3</span>
+          <h3 className="text-xl font-bold text-[var(--text-main)]">Hàng đợi Xử lý (Mockdata)</h3>
+          <span className="px-3 py-1 bg-[var(--border-color)] rounded-lg text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Đang xử lý: 3</span>
         </div>
 
         <div className="space-y-4">
@@ -461,8 +463,8 @@ const KnowledgeBase = () => {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-4xl font-black text-white tracking-tight">Cơ sở Tri thức</h2>
-          <p className="text-slate-500 text-sm">Quản lý bộ sưu tập vector và chỉ mục tìm kiếm ngữ nghĩa</p>
+          <h2 className="text-4xl font-black text-[var(--text-main)] tracking-tight">Cơ sở Tri thức</h2>
+          <p className="text-[var(--text-muted)] text-sm">Quản lý bộ sưu tập vector và chỉ mục tìm kiếm ngữ nghĩa</p>
         </div>
         <button className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl text-xs font-black shadow-lg shadow-blue-600/30 hover:bg-blue-500 transition-all active:scale-95">
           <PlusSquare size={18} />
@@ -499,7 +501,7 @@ const KnowledgeBase = () => {
         {/* Left: Collections */}
         <div className="lg:col-span-8 space-y-8">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white">Bộ sưu tập Tri thức</h3>
+            <h3 className="text-xl font-bold text-[var(--text-main)]">Bộ sưu tập Tri thức</h3>
             <div className="flex gap-2">
               <button className="p-2 rounded-lg bg-blue-600/20 text-blue-500 border border-blue-500/20"><LayoutDashboard size={18} /></button>
               <button className="p-2 rounded-lg hover:bg-white/5 text-slate-600"><MoreVertical size={18} className="rotate-90" /></button>
@@ -515,7 +517,7 @@ const KnowledgeBase = () => {
                     <Globe className="text-blue-500" size={24} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-white">Thị trường Nhật Bản</h4>
+                    <h4 className="text-lg font-bold text-[var(--text-main)]">Thị trường Nhật Bản</h4>
                     <p className="text-[10px] text-slate-600 font-mono">nhat_ban</p>
                   </div>
                 </div>
@@ -551,7 +553,7 @@ const KnowledgeBase = () => {
                     <Database className="text-purple-500" size={24} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-white">Quản lý Thuyền viên</h4>
+                    <h4 className="text-lg font-bold text-[var(--text-main)]">Quản lý Thuyền viên</h4>
                     <p className="text-[10px] text-slate-600 font-mono">thuy_en_vien</p>
                   </div>
                 </div>
@@ -585,7 +587,7 @@ const KnowledgeBase = () => {
                     <GraduationCap className="text-amber-500" size={24} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-white">Trung tâm Đào tạo</h4>
+                    <h4 className="text-lg font-bold text-[var(--text-main)]">Trung tâm Đào tạo</h4>
                     <p className="text-[10px] text-slate-600 font-mono">dao_tao</p>
                   </div>
                 </div>
@@ -619,7 +621,7 @@ const KnowledgeBase = () => {
                     <Briefcase className="text-blue-500" size={24} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold text-white">Hành chính - Kế toán</h4>
+                    <h4 className="text-lg font-bold text-[var(--text-main)]">Hành chính - Kế toán</h4>
                     <p className="text-[10px] text-slate-600 font-mono">hanh_chinh</p>
                   </div>
                 </div>
@@ -650,7 +652,7 @@ const KnowledgeBase = () => {
         {/* Right: Semantic Search Preview */}
         <div className="lg:col-span-4 space-y-6">
           <div className="glass-card p-8 bg-blue-500/[0.02] border-blue-500/10">
-            <h3 className="text-lg font-bold text-white flex items-center gap-3 mb-8">
+            <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-3 mb-8">
               <Zap className="text-blue-500" size={20} />
               Xem trước Tìm kiếm Ngữ nghĩa
             </h3>
@@ -746,10 +748,10 @@ const AgentChat = ({ agent, onSendMessage }) => {
             {agent.initials}
           </div>
           <div>
-            <h3 className="font-bold text-white text-lg">{agent.name}</h3>
+            <h3 className="font-bold text-[var(--text-main)] text-lg">{agent.name}</h3>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Đang phản hồi</span>
+              <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Đang phản hồi</span>
             </div>
           </div>
         </div>
@@ -774,7 +776,7 @@ const AgentChat = ({ agent, onSendMessage }) => {
                 <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                   m.sender === 'user' 
                   ? 'bg-blue-600 text-white rounded-tr-none shadow-lg' 
-                  : 'bg-white/[0.03] text-slate-300 border border-white/5 rounded-tl-none'
+                  : 'bg-[var(--sidebar-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-tl-none shadow-sm'
                 }`}>
                   {m.text}
                 </div>
@@ -833,6 +835,25 @@ export default function App() {
   const [riskData, setRiskData] = useState([]);
   const [files, setFiles] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('theme');
+      if (saved) return saved === 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true;
+  });
+
+  // Apply theme class
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
 
   // Fetch initial data
   useEffect(() => {
@@ -914,16 +935,16 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0a0c10] text-[#e2e8f0] font-sans selection:bg-blue-500/30 overflow-hidden">
+    <div className="flex h-screen bg-[var(--bg-main)] text-[var(--text-main)] font-sans selection:bg-blue-500/30 overflow-hidden transition-colors duration-500">
       {/* Sidebar */}
-      <aside className="w-72 bg-[#0c0e14] border-r border-white/5 flex flex-col shrink-0">
+      <aside className="w-72 bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col shrink-0 transition-colors duration-500">
         <div className="p-10 flex items-center gap-4">
           <div className="w-12 h-12 flex items-center justify-center">
             <img src="/logo.png" alt="xHR Logo" className="w-full h-full object-contain" />
           </div>
           <div className="leading-tight">
-            <h1 className="font-black text-2xl tracking-tighter text-white">xHR</h1>
-            <p className="text-[9px] font-bold text-slate-600 tracking-widest uppercase">AI-Native HRAgent</p>
+            <h1 className="font-black text-2xl tracking-tighter text-[var(--text-main)]">xHR</h1>
+            <p className="text-[9px] font-bold text-slate-500 tracking-widest uppercase">AI-Native HRAgent</p>
           </div>
         </div>
 
@@ -987,13 +1008,19 @@ export default function App() {
             <input 
               type="text" 
               placeholder="Tìm kiếm phân tích..." 
-              className="w-full bg-white/[0.03] border border-white/5 rounded-2xl py-2.5 pl-12 pr-4 text-xs focus:bg-white/[0.05] transition-all outline-none text-white"
+              className="w-full bg-[var(--sidebar-bg)] border border-[var(--border-color)] rounded-2xl py-2.5 pl-12 pr-4 text-xs focus:ring-2 focus:ring-blue-500/20 transition-all outline-none text-[var(--text-main)]"
             />
           </div>
-          <div className="flex items-center gap-4">
-            <button className="p-3 rounded-2xl hover:bg-white/5 text-slate-500 transition-all relative">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsDark(!isDark)}
+              className="p-3 rounded-2xl hover:bg-slate-500/10 text-slate-500 transition-all active:scale-90"
+            >
+              {isDark ? <Sun size={20} className="text-amber-400" /> : <Moon size={20} className="text-slate-700" />}
+            </button>
+            <button className="p-3 rounded-2xl hover:bg-slate-500/10 text-slate-500 transition-all relative">
               <Bell size={20} />
-              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-blue-500 rounded-full border-2 border-[#0a0c10]" />
+              <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-blue-500 rounded-full border-2 border-[var(--bg-main)]" />
             </button>
             <div className="w-10 h-10 rounded-full bg-slate-800 border-2 border-blue-600/50 overflow-hidden cursor-pointer active:scale-95 transition-all">
                <img src="https://ui-avatars.com/api/?name=Lê+Anh+Vũ&background=007AFF&color=fff" alt="Profile" className="w-full h-full object-cover" />
@@ -1002,7 +1029,7 @@ export default function App() {
         </header>
 
         {/* Page Container */}
-        <div className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[#0a0c10] relative">
+        <div className="flex-1 overflow-y-auto p-12 custom-scrollbar bg-[var(--bg-main)] relative transition-colors duration-500">
           {/* Subtle Background Glows */}
           <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[120px] -z-10" />
           <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-600/5 rounded-full blur-[100px] -z-10" />
@@ -1022,7 +1049,7 @@ export default function App() {
         </div>
 
         {/* System Status Footer */}
-        <footer className="h-10 border-t border-white/5 bg-black/40 px-12 flex items-center justify-between text-[9px] font-bold text-slate-600 tracking-widest uppercase shrink-0">
+        <footer className="h-10 border-t border-[var(--border-color)] bg-[var(--sidebar-bg)] px-12 flex items-center justify-between text-[9px] font-bold text-slate-500 tracking-widest uppercase shrink-0 transition-colors duration-500">
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500" /> HỆ THỐNG: ỔN ĐỊNH</span>
             <span className="flex items-center gap-2 text-slate-700">|</span>
