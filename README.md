@@ -213,7 +213,7 @@ npm run dev
 <div align="center">
 
 ## Về X-OR CLOUD
-xProxy là sản phẩm của X-OR CLOUD — nền tảng cloud và AI có chủ quyền hàng đầu tại Việt Nam và khu vực Đông Nam Á.
+xHR là sản phẩm của X-OR CLOUD — nền tảng cloud và AI có chủ quyền hàng đầu tại Việt Nam và khu vực Đông Nam Á.
 
 **Built with ❤️ for Thinh Long Group**
 
