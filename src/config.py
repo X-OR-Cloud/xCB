@@ -56,5 +56,9 @@ class Settings(BaseSettings):
     # Redis (Caching)
     redis_url: str = "redis://redis:6379/0"
 
+    # Security
+    admin_api_key: str | None = None  # Bắt buộc set trong production
+    cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+
 
 settings = Settings()

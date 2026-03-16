@@ -1,0 +1,26 @@
+version: "3.9"
+# docker-compose.prod.yml — Cấu hình Production
+# Sử dụng: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+    volumes: []  # Không mount source code trong production
+
+  web:
+    # Build static assets và serve qua nginx (hoặc reverse proxy)
+    build:
+      context: ./web
+      target: production
+
+  db:
+    ports: []  # Không expose PostgreSQL ra ngoài trong production
+
+  pgadmin:
+    ports: []  # Không expose PgAdmin trong production — dùng SSH tunnel nếu cần
+
+  qdrant:
+    ports: []  # Không expose Qdrant ra ngoài trong production
+
+  redis:
+    ports: []  # Không expose Redis ra ngoài trong production

@@ -72,26 +72,26 @@ async def process_document(object_name: str, metadata: dict):
         
         # 5 & 6. Embedding and Indexing
         points = []
-        for chunk in chunks:
+        total_chunks = len(chunks)
+        for idx, chunk in enumerate(chunks):
             vector = await qwen_client.get_embeddings(chunk)
             point_id = str(uuid.uuid4())
-            
+
             # Payload bao gồm nội dung gốc và metadata để filter
             payload = {
                 "content": chunk,
                 "source": object_name,
                 **metadata
             }
-            
+
             points.append({
                 "id": point_id,
                 "vector": vector,
                 "payload": payload
             })
-            
+
             # Cập nhật tiến độ Vector
-            idx = chunks.index(chunk)
-            v_progress = int(((idx + 1) / len(chunks)) * 100)
+            v_progress = int(((idx + 1) / total_chunks) * 100)
             await update_status(vec_p=v_progress)
             
         await qdrant_client.upsert_points(points)

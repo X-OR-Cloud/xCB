@@ -5,9 +5,10 @@ import structlog
 from contextlib import asynccontextmanager
 
 from fastapi import (
-    Depends, FastAPI, Header, HTTPException, Request, status,
+    Depends, FastAPI, Header, HTTPException, Request, Security, status,
     File, UploadFile, Form, BackgroundTasks
 )
+from fastapi.security import APIKeyHeader
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import settings
@@ -18,6 +19,24 @@ from src.router import route_update
 from src.scheduler import setup_scheduler
 from src.api_router import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
+
+# ─── Admin Security ────────────────────────────────────────────────
+
+_admin_api_key_header = APIKeyHeader(name="X-Admin-API-Key", auto_error=False)
+
+
+async def require_admin_key(api_key: str | None = Security(_admin_api_key_header)):
+    """Dependency bảo vệ các endpoint /admin/*. Cần header X-Admin-API-Key."""
+    if not settings.admin_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="ADMIN_API_KEY chưa được cấu hình trên server.",
+        )
+    if api_key != settings.admin_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="API key không hợp lệ.",
+        )
 
 log = structlog.get_logger(__name__)
 
@@ -63,7 +82,7 @@ app = FastAPI(
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Phát triển thì để *, production nên giới hạn
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -104,7 +123,7 @@ async def telegram_webhook(
     return {"ok": True}
 
 
-@app.post("/admin/register-webhook", tags=["Admin"])
+@app.post("/admin/register-webhook", tags=["Admin"], dependencies=[Depends(require_admin_key)])
 async def admin_register_webhook(webhook_url: str):
     """
     Đăng ký webhook URL với Telegram.
@@ -115,7 +134,14 @@ async def admin_register_webhook(webhook_url: str):
     return {"result": result}
 
 
-@app.post("/admin/upload-document", tags=["Admin"])
+_ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
+
+
+@app.post("/admin/upload-document", tags=["Admin"], dependencies=[Depends(require_admin_key)])
 async def admin_upload_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
@@ -129,9 +155,16 @@ async def admin_upload_document(
     from src.workers.document_processor import process_document
     import uuid
 
-    # 1. Đọc file
+    # 1. Validate MIME type
+    if file.content_type not in _ALLOWED_MIME_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=f"Loại file không được hỗ trợ: {file.content_type}. Chỉ chấp nhận PDF và Word.",
+        )
+
+    # 2. Đọc file
     content = await file.read()
-    file_ext = file.filename.split(".")[-1]
+    file_ext = file.filename.split(".")[-1].lower()
     object_name = f"docs/{uuid.uuid4()}.{file_ext}"
 
     # 2. Upload lên CEPH
@@ -161,7 +194,7 @@ async def admin_upload_document(
     }
 
 
-@app.get("/admin/status", tags=["Admin"])
+@app.get("/admin/status", tags=["Admin"], dependencies=[Depends(require_admin_key)])
 async def admin_status(db: AsyncSession = Depends(get_db)):
     """Trạng thái cơ bản của hệ thống."""
     from sqlalchemy import text

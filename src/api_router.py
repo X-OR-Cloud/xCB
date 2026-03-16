@@ -1,7 +1,7 @@
 """
 src/api_router.py — REST API cho React Frontend của xHR
 """
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -16,6 +16,12 @@ from src.database.models import (
 from src.workers.document_processor import process_document
 
 router = APIRouter(prefix="/api", tags=["Web-API"])
+
+_ALLOWED_MIME_TYPES = {
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+}
 
 # --- Dashboard API ---
 
@@ -62,7 +68,14 @@ async def upload_document(
 ):
     """Tải lên tài liệu và bắt đầu xử lý."""
     from src.integrations.xor_storage import storage
-    
+
+    # 0. Validate MIME type
+    if file.content_type not in _ALLOWED_MIME_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=f"Loại file không được hỗ trợ: {file.content_type}. Chỉ chấp nhận PDF và Word.",
+        )
+
     # 1. Tạo bản ghi DB
     db_file = TaiLieu(
         ten_file=file.filename,

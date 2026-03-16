@@ -31,17 +31,17 @@ async def ask_claude(
     selected_model = model or settings.claude_model or "claude-3-5-sonnet-20241022"
 
     try:
+        # Chỉ bật Prompt Caching khi system_prompt đủ dài (>= 1024 token ≈ 4096 ký tự)
+        # Truyền cache_control=None sẽ bị Anthropic API từ chối
+        system_block: dict = {"type": "text", "text": system_prompt}
+        if len(system_prompt) > 1024:
+            system_block["cache_control"] = {"type": "ephemeral"}
+
         response = await _client.messages.create(
             model=selected_model,
             max_tokens=max_tokens,
             temperature=0.2,
-            system=[
-                {
-                    "type": "text", 
-                    "text": system_prompt,
-                    "cache_control": {"type": "ephemeral"} if len(system_prompt) > 1024 else None
-                }
-            ],
+            system=[system_block],
             messages=messages,
         )
         reply = response.content[0].text

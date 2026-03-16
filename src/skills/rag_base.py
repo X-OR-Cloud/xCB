@@ -17,10 +17,10 @@ async def search_knowledge_base(query: str, nhan_vien: NhanVien, limit: int = 3)
         query_vector = await qwen_client.get_embeddings(query)
         
         # 2. Định nghĩa filter dựa trên quyền của nhân viên
-        # Ví dụ: chỉ tìm tài liệu thuộc phòng ban của mình hoặc tài liệu chung
+        # Lãnh đạo / TGD có thể xem tất cả; các phòng ban khác chỉ xem tài liệu của mình
         filter_dict = {}
-        # if nhan_vien.phong_ban.value not in ["lanh_dao", "tgd"]:
-        #     filter_dict["phong_ban"] = nhan_vien.phong_ban.value
+        if nhan_vien.phong_ban.value not in ["lanh_dao", "tgd"]:
+            filter_dict["phong_ban"] = nhan_vien.phong_ban.value
 
         # 3. Search Qdrant
         results = await qdrant_client.search_knowledge(
