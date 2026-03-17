@@ -108,23 +108,40 @@ const DashboardCEO = ({ stats, riskData }) => (
     {/* Top Row: KPIs */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {[
-        { label: "Tổng doanh thu (YTD)", value: stats.revenue_ytd || "---", change: stats.revenue_change, color: "blue", progress: 65 },
-        { label: "Biên lợi nhuận ròng", value: stats.margin || "---", change: stats.margin_change, color: "blue", progress: 45 },
-        { label: "Chỉ số rủi ro", value: stats.risk_index || "---", change: stats.risk_change, color: "purple", progress: 15 },
-        { label: "Mức độ hoàn thành mục tiêu", value: stats.goal_completion || "---", change: stats.goal_change, color: "emerald", progress: 88 }
+        { label: "Tổng doanh thu (YTD)", value: stats.revenue_ytd || "---", change: stats.revenue_change, color: "blue", progress: 65, icon: TrendingUp },
+        { label: "Biên lợi nhuận ròng", value: stats.margin || "---", change: stats.margin_change, color: "blue", progress: 45, icon: Zap },
+        { label: "Chỉ số rủi ro", value: stats.risk_index || "---", change: stats.risk_change, color: "purple", progress: 15, icon: ShieldCheck },
+        { label: "Mức độ hoàn thành mục tiêu", value: stats.goal_completion || "---", change: stats.goal_change, color: "emerald", progress: 88, icon: Activity }
       ].map((kpi, i) => (
-        <div key={i} className="glass-card p-6 border-[var(--border-color)]">
-          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-4">{kpi.label}</p>
-          <div className="flex items-baseline gap-2 mb-4">
-            <h3 className="text-2xl font-black text-[var(--text-main)]">{kpi.value}</h3>
-            <span className={`text-[10px] font-bold ${kpi.change?.startsWith('+') ? 'text-green-500' : 'text-slate-500'}`}>{kpi.change}</span>
+        <div key={i} className={`glass-card p-6 border-[var(--border-color)] bg-[#121212]/30 relative group overflow-hidden`}>
+          <div className="flex justify-between items-start mb-6">
+            <div className={`p-3 rounded-xl ${
+              kpi.color === 'blue' ? 'bg-cyan-500/10 text-cyan-500' : 
+              kpi.color === 'purple' ? 'bg-purple-500/10 text-purple-500' : 'bg-green-500/10 text-green-500'
+            }`}>
+              <kpi.icon size={20} />
+            </div>
+            <span className={`text-[10px] font-black ${kpi.change?.startsWith('+') ? 'text-green-500 neon-text-green' : 'text-slate-500'}`}>{kpi.change}</span>
           </div>
-          <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-             <div className={`h-full rounded-full ${
-               kpi.color === 'blue' ? 'bg-blue-500' : 
-               kpi.color === 'purple' ? 'bg-purple-500' : 'bg-green-500'
-             }`} style={{ width: `${kpi.progress}%` }} />
+          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">{kpi.label}</p>
+          <h3 className={`text-2xl font-black text-white ${kpi.color === 'blue' ? 'neon-text-cyan' : kpi.color === 'purple' ? 'neon-text-purple' : ''}`}>{kpi.value}</h3>
+          
+          <div className="mt-6 space-y-2">
+            <div className="flex justify-between items-center text-[8px] font-bold text-slate-600 uppercase tracking-widest">
+              <span>Tiến độ</span>
+              <span>{kpi.progress}%</span>
+            </div>
+            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+               <motion.div 
+                 initial={{ width: 0 }}
+                 animate={{ width: `${kpi.progress}%` }}
+                 className={`h-full rounded-full ${
+                  kpi.color === 'blue' ? 'bg-cyan-500 shadow-[0_0_10px_#00f2ff]' : 
+                  kpi.color === 'purple' ? 'bg-purple-500 shadow-[0_0_10px_#bc13fe]' : 'bg-green-500 shadow-[0_0_10px_#22c55e]'
+                }`} />
+            </div>
           </div>
+          <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-white/[0.02] rounded-full blur-2xl group-hover:bg-white/[0.05] transition-all" />
         </div>
       ))}
     </div>
@@ -132,73 +149,206 @@ const DashboardCEO = ({ stats, riskData }) => (
     {/* Middle Row: Map & Alerts */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Global Map */}
-      <div className="lg:col-span-8 glass-card p-8">
+      <div className="lg:col-span-8 glass-card p-8 bg-[#121212]/40 relative overflow-hidden group">
         <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-[var(--text-main)]">Phân bổ nguồn nhân lực toàn cầu</h3>
+          <div>
+            <h3 className="text-xl font-black text-white neon-text-cyan flex items-center gap-3">
+              <Globe className="text-[var(--neon-cyan)] animate-pulse" size={20} />
+              Phân bổ nguồn nhân lực toàn cầu
+            </h3>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Dữ liệu thời gian thực từ 12 quốc gia</p>
+          </div>
           <div className="flex items-center gap-6">
              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Tăng trưởng cao</span>
+                <div className="w-2 h-2 rounded-full bg-[var(--neon-cyan)] shadow-[0_0_10px_rgba(0,242,255,0.8)]" />
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Tăng trưởng cao</span>
              </div>
              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Ổn định</span>
+                <div className="w-2 h-2 rounded-full bg-[var(--neon-purple)] shadow-[0_0_10px_rgba(188,19,254,0.8)]" />
+                <span className="text-[10px] font-bold text-slate-400 uppercase">Ổn định</span>
              </div>
           </div>
         </div>
-        <div className="h-[400px] w-full bg-slate-900/40 rounded-3xl relative overflow-hidden border border-white/5">
-           {/* Abstract Map Dots */}
-           <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 4, repeat: Infinity }} className="absolute top-1/3 left-1/4 w-3 h-3 bg-blue-500 rounded-full blur-[2px]" />
-           <motion.div animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }} transition={{ duration: 5, repeat: Infinity, delay: 1 }} className="absolute top-1/2 left-1/2 w-3 h-3 bg-blue-400 rounded-full blur-[2px]" />
-           <motion.div animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.9, 0.6] }} transition={{ duration: 3, repeat: Infinity, delay: 2 }} className="absolute top-2/3 left-[40%] w-3 h-3 bg-purple-500 rounded-full blur-[2px]" />
-           <motion.div animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 6, repeat: Infinity, delay: 0.5 }} className="absolute bottom-1/4 right-1/4 w-3 h-3 bg-blue-600 rounded-full blur-[2px]" />
-           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
+
+        <div className="h-[450px] w-full bg-black/60 rounded-[2.5rem] relative overflow-hidden border border-white/5 perspective-1000">
+           {/* Futuristic Grid Background */}
+           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, var(--neon-cyan) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
+           
+           {/* Perspective Map Container */}
+           <motion.div 
+             initial={{ rotateX: 20, y: 50, opacity: 0 }}
+             animate={{ rotateX: 10, y: 0, opacity: 1 }}
+             transition={{ duration: 1.5, ease: "easeOut" }}
+             className="absolute inset-0 flex items-center justify-center p-12"
+           >
+             <svg viewBox="0 0 1000 500" className="w-full h-auto drop-shadow-[0_0_20px_rgba(0,242,255,0.2)]">
+                {/* Simplified World Map Paths */}
+                <path d="M150,150 L180,140 L220,160 L240,220 L220,280 L180,300 L140,280 L120,220 Z M350,100 L400,80 L450,100 L480,180 L450,260 L400,280 L350,260 Z M600,120 L650,100 L720,130 L750,200 L720,300 L650,340 L580,300 Z M800,250 L850,230 L900,260 L920,320 L890,380 L840,400 L790,370 Z" 
+                  fill="transparent" 
+                  stroke="rgba(0, 242, 255, 0.4)" 
+                  strokeWidth="0.5" 
+                  strokeDasharray="4 4"
+                />
+                <path d="M280,120 Q320,100 360,110 T400,140 T420,200 T380,260 T320,240 T280,180 Z" 
+                  fill="rgba(0, 242, 255, 0.05)" 
+                  stroke="rgba(0, 242, 255, 0.6)" 
+                  strokeWidth="1"
+                />
+                {/* Asia/Japan/VN region focus */}
+                <path d="M650,150 Q700,130 750,160 T780,220 T750,300 T680,340 T620,300 T600,220 Z" 
+                  fill="rgba(0, 242, 255, 0.08)" 
+                  stroke="rgba(0, 242, 255, 0.8)" 
+                  strokeWidth="1.5"
+                  className="neon-border-cyan"
+                />
+                
+                {/* Connection Lines */}
+                <motion.path 
+                  d="M680,240 Q750,200 850,280" 
+                  fill="none" 
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="1" 
+                  strokeDasharray="100 100"
+                  animate={{ strokeDashoffset: [200, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                />
+                <motion.path 
+                  d="M680,240 Q550,180 400,220" 
+                  fill="none" 
+                  stroke="url(#lineGradient)" 
+                  strokeWidth="1" 
+                  strokeDasharray="100 100"
+                  animate={{ strokeDashoffset: [200, 0] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "linear", delay: 1 }}
+                />
+
+                <defs>
+                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="transparent" />
+                      <stop offset="50%" stopColor="var(--neon-cyan)" />
+                      <stop offset="100%" stopColor="transparent" />
+                   </linearGradient>
+                </defs>
+             </svg>
+
+             {/* Hotspots */}
+             {/* Vietnam */}
+             <div className="absolute top-[52%] left-[68%] group/pin">
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
+                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
+                   <p className="text-[10px] font-black text-cyan-400">VIỆT NAM</p>
+                   <p className="text-[8px] text-white">4,280 Nhân sự</p>
+                </div>
+             </div>
+
+             {/* Japan */}
+             <div className="absolute top-[40%] left-[75%] group/pin">
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }} className="w-4 h-4 bg-purple-500 rounded-full blur-md" />
+                <div className="w-2 h-2 bg-purple-500 rounded-full shadow-[0_0_15px_#bc13fe] relative z-10" />
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-purple-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
+                   <p className="text-[10px] font-black text-purple-400">NHẬT BẢN</p>
+                   <p className="text-[8px] text-white">1,200 Nhân sự</p>
+                </div>
+             </div>
+
+             {/* Europe */}
+             <div className="absolute top-[35%] left-[38%] group/pin">
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
+                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
+                   <p className="text-[10px] font-black text-cyan-400">CHÂU ÂU</p>
+                   <p className="text-[8px] text-white">850 Nhân sự</p>
+                </div>
+             </div>
+
+             {/* UAE */}
+             <div className="absolute top-[50%] left-[55%] group/pin">
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2.2, repeat: Infinity, delay: 1.5 }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
+                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
+                   <p className="text-[10px] font-black text-cyan-400">UAE</p>
+                   <p className="text-[8px] text-white">650 Nhân sự</p>
+                </div>
+             </div>
+           </motion.div>
+
+           {/* Glassmorphism Metric Overlays */}
+           <div className="absolute bottom-6 left-6 flex gap-4">
+              <div className="glass-morphism px-4 py-2 rounded-2xl flex items-center gap-3">
+                 <div className="text-[var(--neon-cyan)]"><Users size={16} /></div>
+                 <div>
+                    <p className="text-[8px] font-bold text-slate-500 uppercase">Tổng nhân tài</p>
+                    <p className="text-sm font-black text-white">18,750</p>
+                 </div>
+              </div>
+              <div className="glass-morphism px-4 py-2 rounded-2xl flex items-center gap-3">
+                 <div className="text-[var(--neon-purple)]"><TrendingUp size={16} /></div>
+                 <div>
+                    <p className="text-[8px] font-bold text-slate-500 uppercase">Tăng trưởng</p>
+                    <p className="text-sm font-black text-white">+14.2%</p>
+                 </div>
+              </div>
+           </div>
+
+           <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
         </div>
       </div>
 
       {/* Strategic Alerts & AI Insights */}
       <div className="lg:col-span-4 space-y-8">
         {/* Alerts */}
-        <div className="glass-card p-6 bg-white/[0.01]">
-           <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
-             <AlertCircle size={18} className="text-blue-500" />
+        <div className="glass-morphism p-6 relative overflow-hidden group">
+           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
+              <AlertCircle size={40} className="text-red-500" />
+           </div>
+           <h3 className="text-sm font-black text-white mb-8 flex items-center gap-3">
+             <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
              Cảnh báo chiến lược
            </h3>
            <div className="space-y-4">
-              <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-4">
-                 <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">RỦI RO NGHIÊM TRỌNG</p>
-                 <p className="text-xs text-slate-400 leading-relaxed">Phát hiện gián đoạn chuỗi cung ứng tại khu vực APAC. Dự kiến ảnh hưởng 12%.</p>
+              <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-4 hover:border-red-500/30 transition-all">
+                 <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                    <ShieldCheck size={10} />
+                    RỦI RO NGHIÊM TRỌNG
+                 </p>
+                 <p className="text-xs text-slate-400 leading-relaxed font-medium">Phát hiện gián đoạn chuỗi cung ứng tại khu vực APAC. Dự kiến ảnh hưởng 12% năng suất.</p>
               </div>
-              <div className="bg-blue-600/5 border border-blue-500/10 rounded-2xl p-4">
-                 <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">CƠ HỘI</p>
-                 <p className="text-xs text-slate-400 leading-relaxed">Tín hiệu thâm nhập thị trường mới tại EU cho lĩnh vực năng lượng tái tạo.</p>
+              <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4 hover:border-cyan-500/30 transition-all">
+                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                    <TrendingUp size={10} />
+                    CƠ HỘI MỚI
+                 </p>
+                 <p className="text-xs text-slate-400 leading-relaxed font-medium">Tín hiệu thâm nhập thị trường mới tại EU cho lĩnh vực đào tạo nhân lực.</p>
               </div>
            </div>
         </div>
 
         {/* AI Insights */}
-        <div className="glass-card p-6 bg-white/[0.01]">
-           <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
-             <Zap size={18} className="text-purple-500" />
-             Thông tin chi tiết từ AI
+        <div className="glass-morphism p-6 bg-gradient-to-br from-[#bc13fe]/5 to-transparent relative overflow-hidden">
+           <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--neon-purple)] opacity-[0.03] blur-3xl pointer-events-none" />
+           <h3 className="text-sm font-black text-white mb-6 flex items-center gap-3">
+             <Zap size={18} className="text-[var(--neon-purple)] neon-text-purple" />
+             Thông tin từ AI MOLTY
            </h3>
            <div className="space-y-6">
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20">
-                  <TrendingUp size={18} className="text-purple-500" />
+              <div className="flex gap-4 p-3 rounded-2xl hover:bg-white/[0.02] transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20 text-[var(--neon-purple)]">
+                  <TrendingUp size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white mb-1">Phân tích xu hướng</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Tăng trưởng doanh thu đang vượt mức chi tiêu 2.4 lần trong quý này.</p>
+                  <p className="text-xs font-bold text-white mb-1">Xu hướng tăng trưởng</p>
+                  <p className="text-[10px] text-slate-500 leading-relaxed">Doanh thu dự kiến vượt 2.4x trong quý tiếp theo nhờ tối ưu hóa quy trình.</p>
                 </div>
               </div>
-              <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                  <Activity size={18} className="text-blue-500" />
+              <div className="flex gap-4 p-3 rounded-2xl hover:bg-white/[0.02] transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0 border border-cyan-500/20 text-[var(--neon-cyan)]">
+                  <Activity size={20} />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white mb-1">Dự báo</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Dự kiến mức hoàn thành mục tiêu: 94% vào cuối quý 4.</p>
+                  <p className="text-xs font-bold text-white mb-1">Dự báo tỉ lệ hoàn thành</p>
+                  <p className="text-[10px] text-slate-500 leading-relaxed">Độ chính xác mô hình RAG đạt 98% cho các phản hồi về quyền lợi nhân sự.</p>
                 </div>
               </div>
            </div>

@@ -17,20 +17,48 @@
 }
 
 .dark {
-  --bg-main: #0a0c10;
-  --sidebar-bg: #0c0e14;
-  --card-bg: #11141b;
-  --accent-blue: #2563eb;
-  --accent-blue-rgb: 37, 99, 235;
-  --accent-glow: rgba(37, 99, 235, 0.4);
-  --text-main: #e2e8f0;
+  --bg-main: #0a0b0e;
+  --sidebar-bg: #121212;
+  --card-bg: #1a1a1a;
+  --accent-blue: #00f2ff;
+  --accent-blue-rgb: 0, 242, 255;
+  --accent-glow: rgba(0, 242, 255, 0.4);
+  --accent-purple: #bc13fe;
+  --accent-purple-rgb: 188, 19, 254;
+  --text-main: #f0f2f5;
   --text-muted: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.05);
+  --neon-cyan: #00f2ff;
+  --neon-purple: #bc13fe;
 }
 
 body {
   @apply bg-[var(--bg-main)] text-[var(--text-main)] font-sans antialiased overflow-hidden transition-colors duration-500;
-  background-image: radial-gradient(circle at 50% -20%, var(--accent-glow), transparent 70%);
+  background-image: radial-gradient(circle at 50% -20%, var(--accent-glow), transparent 70%),
+                    radial-gradient(circle at 0% 100%, rgba(var(--accent-purple-rgb), 0.1), transparent 50%);
+}
+
+.neon-border-cyan {
+  box-shadow: 0 0 10px rgba(0, 242, 255, 0.3), inset 0 0 5px rgba(0, 242, 255, 0.1);
+}
+
+.neon-border-purple {
+  box-shadow: 0 0 10px rgba(188, 19, 254, 0.3), inset 0 0 5px rgba(188, 19, 254, 0.1);
+}
+
+.neon-text-cyan {
+  text-shadow: 0 0 8px rgba(0, 242, 255, 0.6);
+}
+
+.neon-text-purple {
+  text-shadow: 0 0 8px rgba(188, 19, 254, 0.6);
+}
+
+.glass-morphism {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-card {
