@@ -1,40 +1,57 @@
 """
-src/router.py — Message router: nhận Telegram Update → dispatch đến đúng MOLTY agent
+src/router.py — Message router: nhận Telegram Update → dispatch đến đúng xAI-CB agent
 """
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.agents import MoltyCEO, MoltyDT, MoltyHC, MoltyNB, MoltyTV
-from src.database.models import NhanVien, PhongBan
+from src.agents import (
+    XCBPhapLy, XCBGiaoDuc, XCBBaoHiem, XCBTaiNguyen,
+    XCBNongNghiep, XCBCongNghiep, XCBHanhChinh,
+    XCBDoanhNghiep, XCBGiamSat
+)
+from src.database.models import CanBo, PhongBan
 from src.integrations.telegram_bot import send_message, send_typing_action
 
 log = structlog.get_logger(__name__)
 
-# Khởi tạo 5 agent instances (stateless)
-_agents = {
-    PhongBan.nhat_ban:   MoltyNB(),
-    PhongBan.thuy_en_vien: MoltyTV(),
-    PhongBan.han_quoc:   MoltyTV(),
-    PhongBan.dao_tao:    MoltyDT(),
-    PhongBan.hanh_chinh: MoltyHC(),
-    PhongBan.ke_toan:    MoltyHC(),
-    PhongBan.lanh_dao:   MoltyCEO(),
-    PhongBan.tgd:        MoltyCEO(),
+# Khởi tạo 9 agent instances (stateless)
+# Map theo PhongBan enum — dùng fallback hanh_chinh cho các phòng ban chưa map
+_agents_by_id = {
+    "pl":  XCBPhapLy(),
+    "gd":  XCBGiaoDuc(),
+    "bh":  XCBBaoHiem(),
+    "tn":  XCBTaiNguyen(),
+    "nn":  XCBNongNghiep(),
+    "cn":  XCBCongNghiep(),
+    "hc":  XCBHanhChinh(),
+    "dn":  XCBDoanhNghiep(),
+    "gm":  XCBGiamSat(),
 }
 
-# Theo dõi update_id đã xử lý (in-memory dedup — đủ dùng với 1 instance)
+# Giữ lại _agents dict để tương thích với api_router cũ (keyed by PhongBan)
+_agents = {
+    PhongBan.hanh_chinh: _agents_by_id["hc"],
+    PhongBan.ke_toan:    _agents_by_id["hc"],
+    PhongBan.lanh_dao:   _agents_by_id["gm"],
+    PhongBan.tgd:        _agents_by_id["gm"],
+    PhongBan.dao_tao:    _agents_by_id["gd"],
+    PhongBan.nhat_ban:   _agents_by_id["dn"],
+    PhongBan.thuy_en_vien: _agents_by_id["hc"],
+    PhongBan.han_quoc:   _agents_by_id["dn"],
+}
+
+# Theo dõi update_id đã xử lý
 _processed_updates: set[int] = set()
 _MAX_DEDUP_SIZE = 10_000
 
 
 async def route_update(update: dict, db: AsyncSession) -> None:
     """
-    Nhận Telegram Update object, tìm NhanVien, dispatch đến agent phù hợp.
+    Nhận Telegram Update object, tìm CanBo, dispatch đến agent phù hợp.
     """
     update_id = update.get("update_id", 0)
 
-    # ── Deduplication ───────────────────────────────────────────────
     if update_id in _processed_updates:
         log.warning("duplicate_update", update_id=update_id)
         return
@@ -42,10 +59,8 @@ async def route_update(update: dict, db: AsyncSession) -> None:
     if len(_processed_updates) > _MAX_DEDUP_SIZE:
         _processed_updates.clear()
 
-    # ── Lấy message ─────────────────────────────────────────────────
     message_obj = update.get("message") or update.get("edited_message")
     if not message_obj:
-        log.debug("no_message_in_update", update_id=update_id)
         return
 
     chat_id: int = message_obj["chat"]["id"]
@@ -56,18 +71,16 @@ async def route_update(update: dict, db: AsyncSession) -> None:
         await send_message(chat_id, "⚠️ Vui lòng gửi tin nhắn dạng văn bản.")
         return
 
-    # ── Tra cứu nhân viên ───────────────────────────────────────────
     result = await db.execute(
-        select(NhanVien).where(NhanVien.telegram_user_id == telegram_user_id)
+        select(CanBo).where(CanBo.telegram_user_id == telegram_user_id)
     )
-    nhan_vien: NhanVien | None = result.scalar_one_or_none()
+    nhan_vien: CanBo | None = result.scalar_one_or_none()
 
     if not nhan_vien:
-        log.warning("unknown_telegram_user", telegram_user_id=telegram_user_id)
         await send_message(
             chat_id,
-            "❌ Tài khoản Telegram của bạn chưa được liên kết với hệ thống xHR.\n"
-            "Vui lòng liên hệ phòng Hành chính để được hỗ trợ.",
+            "❌ Tài khoản Telegram của bạn chưa được liên kết với hệ thống xCB.\n"
+            "Vui lòng liên hệ bộ phận quản trị để được hỗ trợ.",
         )
         return
 
@@ -75,14 +88,7 @@ async def route_update(update: dict, db: AsyncSession) -> None:
         await send_message(chat_id, "⚠️ Tài khoản của bạn đã bị vô hiệu hoá.")
         return
 
-    # ── Dispatch đến agent ──────────────────────────────────────────
-    agent = _agents.get(nhan_vien.phong_ban)
-    if not agent:
-        log.error("no_agent_for_phong_ban", phong_ban=nhan_vien.phong_ban)
-        await send_message(chat_id, "⚠️ Phòng ban chưa được cấu hình agent. Liên hệ admin.")
-        return
-
-    # Hiển thị typing indicator
+    agent = _agents.get(nhan_vien.phong_ban, _agents_by_id["hc"])
     await send_typing_action(chat_id)
 
     log.info(

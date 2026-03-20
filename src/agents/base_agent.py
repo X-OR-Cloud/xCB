@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database.models import AuditLog, NhanVien
+from src.database.models import AuditLog, CanBo
 from src.integrations import claude_client
 from src.integrations import telegram_bot
 
@@ -33,7 +33,7 @@ class BaseAgent(ABC):
     async def handle(
         self,
         message: str,
-        nhan_vien: NhanVien,
+        nhan_vien: CanBo,
         db: AsyncSession,
     ) -> str:
         """
@@ -88,7 +88,7 @@ class BaseAgent(ABC):
         self,
         skill_name: str,
         message: str,
-        nhan_vien: NhanVien,
+        nhan_vien: CanBo,
         db: AsyncSession,
     ) -> str:
         """Dispatch đến skill handler cụ thể."""
@@ -105,7 +105,7 @@ class BaseAgent(ABC):
                     return skill_name
         return None
 
-    async def _default_reply(self, message: str, nhan_vien: NhanVien) -> str:
+    async def _default_reply(self, message: str, nhan_vien: CanBo) -> str:
         """Fallback: Tìm kiếm RAG trước khi gọi Claude."""
         from src.skills.rag_base import search_knowledge_base, generate_rag_answer
         
@@ -123,7 +123,7 @@ class BaseAgent(ABC):
     async def _audit(
         self,
         db: AsyncSession,
-        nhan_vien: NhanVien,
+        nhan_vien: CanBo,
         hanh_dong: str,
         input_data: str,
         result: str,

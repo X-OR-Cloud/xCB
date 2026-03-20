@@ -35,7 +35,8 @@ import {
   Folder,
   Activity,
   Sun,
-  Moon
+  Moon,
+  Leaf
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -98,37 +99,40 @@ const StatCard = ({ icon: Icon, label, value, change, color }) => (
 
 // --- Pages ---
 
-const DashboardCEO = ({ stats, riskData }) => (
+const DashboardHC = ({ stats, riskData }) => (
   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
     <div className="flex flex-col gap-1">
-      <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Tổng Quan Ban Lãnh Đạo</h2>
-      <p className="text-[var(--text-muted)] text-sm">Hiệu suất vận hành thời gian thực trên toàn hệ thống xHR HRAgent.</p>
+      <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tight">Trung tâm Điều hành Hành chính Công xCB</h2>
+      <p className="text-[var(--text-muted)] text-sm">Giám sát xử lý hồ sơ và hỗ trợ nghiệp vụ cán bộ công chức địa phương.</p>
     </div>
 
-    {/* Top Row: KPIs */}
+    {/* Top Row: KPIs Hành chính */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {[
-        { label: "Tổng doanh thu (YTD)", value: stats.revenue_ytd || "---", change: stats.revenue_change, color: "blue", progress: 65, icon: TrendingUp },
-        { label: "Biên lợi nhuận ròng", value: stats.margin || "---", change: stats.margin_change, color: "blue", progress: 45, icon: Zap },
-        { label: "Chỉ số rủi ro", value: stats.risk_index || "---", change: stats.risk_change, color: "purple", progress: 15, icon: ShieldCheck },
-        { label: "Mức độ hoàn thành mục tiêu", value: stats.goal_completion || "---", change: stats.goal_change, color: "emerald", progress: 88, icon: Activity }
+        { label: "Hồ sơ tiếp nhận", value: stats.ho_so_tiep_nhan || "1,284", change: stats.tiep_nhan_change || "+8.3%", color: "blue", progress: 65, icon: FileText },
+        { label: "Tỉ lệ đúng hạn", value: stats.ti_le_dung_han || "94.2%", change: stats.dung_han_change || "+2.1%", color: "blue", progress: 94, icon: ShieldCheck },
+        { label: "Đang chờ xử lý", value: stats.dang_cho || "187", change: stats.cho_change || "-5.4%", color: "purple", progress: 15, icon: Clock },
+        { label: "Hồ sơ quá hạn", value: stats.qua_han || "23", change: stats.qua_han_change || "-12.0%", color: "red", progress: 5, icon: AlertCircle }
       ].map((kpi, i) => (
         <div key={i} className={`glass-card p-6 border-[var(--border-color)] bg-[#121212]/30 relative group overflow-hidden`}>
           <div className="flex justify-between items-start mb-6">
             <div className={`p-3 rounded-xl ${
               kpi.color === 'blue' ? 'bg-cyan-500/10 text-cyan-500' : 
-              kpi.color === 'purple' ? 'bg-purple-500/10 text-purple-500' : 'bg-green-500/10 text-green-500'
+              kpi.color === 'purple' ? 'bg-purple-500/10 text-purple-500' : 'bg-red-500/10 text-red-500'
             }`}>
               <kpi.icon size={20} />
             </div>
-            <span className={`text-[10px] font-black ${kpi.change?.startsWith('+') ? 'text-green-500 neon-text-green' : 'text-slate-500'}`}>{kpi.change}</span>
+            <span className={`text-[10px] font-black ${
+               kpi.color === 'red' ? (kpi.change.startsWith('-') ? 'text-green-500' : 'text-red-500') :
+               (kpi.change.startsWith('+') ? 'text-green-500' : 'text-slate-500')
+            }`}>{kpi.change}</span>
           </div>
           <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2">{kpi.label}</p>
           <h3 className={`text-2xl font-black text-white ${kpi.color === 'blue' ? 'neon-text-cyan' : kpi.color === 'purple' ? 'neon-text-purple' : ''}`}>{kpi.value}</h3>
           
           <div className="mt-6 space-y-2">
             <div className="flex justify-between items-center text-[8px] font-bold text-slate-600 uppercase tracking-widest">
-              <span>Tiến độ</span>
+              <span>Mức độ xử lý</span>
               <span>{kpi.progress}%</span>
             </div>
             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
@@ -137,44 +141,30 @@ const DashboardCEO = ({ stats, riskData }) => (
                  animate={{ width: `${kpi.progress}%` }}
                  className={`h-full rounded-full ${
                   kpi.color === 'blue' ? 'bg-cyan-500 shadow-[0_0_10px_#00f2ff]' : 
-                  kpi.color === 'purple' ? 'bg-purple-500 shadow-[0_0_10px_#bc13fe]' : 'bg-green-500 shadow-[0_0_10px_#22c55e]'
+                  kpi.color === 'purple' ? 'bg-purple-500 shadow-[0_0_10px_#bc13fe]' : 'bg-red-500 shadow-[0_0_10px_#ff4444]'
                 }`} />
             </div>
           </div>
-          <div className="absolute -bottom-6 -right-6 w-20 h-20 bg-white/[0.02] rounded-full blur-2xl group-hover:bg-white/[0.05] transition-all" />
         </div>
       ))}
     </div>
 
-    {/* Middle Row: Map & Alerts */}
+    {/* Middle Row: Vietnam Map & AI Insights */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Global Map */}
+      {/* Vietnam Map */}
       <div className="lg:col-span-8 glass-card p-8 bg-[#121212]/40 relative overflow-hidden group">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-xl font-black text-white neon-text-cyan flex items-center gap-3">
               <Globe className="text-[var(--neon-cyan)] animate-pulse" size={20} />
-              Phân bổ nguồn nhân lực toàn cầu
+              Bản đồ Hiệu suất Hành chính Công Địa Phương
             </h3>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Dữ liệu thời gian thực từ 12 quốc gia</p>
-          </div>
-          <div className="flex items-center gap-6">
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[var(--neon-cyan)] shadow-[0_0_10px_rgba(0,242,255,0.8)]" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Tăng trưởng cao</span>
-             </div>
-             <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-[var(--neon-purple)] shadow-[0_0_10px_rgba(188,19,254,0.8)]" />
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Ổn định</span>
-             </div>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Phân tích theo địa bàn quản lý xCB</p>
           </div>
         </div>
 
         <div className="h-[450px] w-full bg-black/60 rounded-[2.5rem] relative overflow-hidden border border-white/5 perspective-1000">
-           {/* Futuristic Grid Background */}
            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, var(--neon-cyan) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-           
-           {/* Perspective Map Container */}
            <motion.div 
              initial={{ rotateX: 20, y: 50, opacity: 0 }}
              animate={{ rotateX: 10, y: 0, opacity: 1 }}
@@ -182,237 +172,99 @@ const DashboardCEO = ({ stats, riskData }) => (
              className="absolute inset-0 flex items-center justify-center p-12"
            >
              <svg viewBox="0 0 1000 500" className="w-full h-auto drop-shadow-[0_0_20px_rgba(0,242,255,0.2)]">
-                {/* Simplified World Map Paths */}
-                <path d="M150,150 L180,140 L220,160 L240,220 L220,280 L180,300 L140,280 L120,220 Z M350,100 L400,80 L450,100 L480,180 L450,260 L400,280 L350,260 Z M600,120 L650,100 L720,130 L750,200 L720,300 L650,340 L580,300 Z M800,250 L850,230 L900,260 L920,320 L890,380 L840,400 L790,370 Z" 
-                  fill="transparent" 
-                  stroke="rgba(0, 242, 255, 0.4)" 
-                  strokeWidth="0.5" 
-                  strokeDasharray="4 4"
-                />
-                <path d="M280,120 Q320,100 360,110 T400,140 T420,200 T380,260 T320,240 T280,180 Z" 
-                  fill="rgba(0, 242, 255, 0.05)" 
-                  stroke="rgba(0, 242, 255, 0.6)" 
-                  strokeWidth="1"
-                />
-                {/* Asia/Japan/VN region focus */}
-                <path d="M650,150 Q700,130 750,160 T780,220 T750,300 T680,340 T620,300 T600,220 Z" 
-                  fill="rgba(0, 242, 255, 0.08)" 
+                {/* Simplified VN Map Placeholder */}
+                <path d="M500,50 L520,100 L510,200 L530,300 L500,450 L480,300 L490,200 L480,100 Z" 
+                  fill="rgba(0, 242, 255, 0.1)" 
                   stroke="rgba(0, 242, 255, 0.8)" 
-                  strokeWidth="1.5"
-                  className="neon-border-cyan"
+                  strokeWidth="2"
                 />
-                
-                {/* Connection Lines */}
-                <motion.path 
-                  d="M680,240 Q750,200 850,280" 
-                  fill="none" 
-                  stroke="url(#lineGradient)" 
-                  strokeWidth="1" 
-                  strokeDasharray="100 100"
-                  animate={{ strokeDashoffset: [200, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                />
-                <motion.path 
-                  d="M680,240 Q550,180 400,220" 
-                  fill="none" 
-                  stroke="url(#lineGradient)" 
-                  strokeWidth="1" 
-                  strokeDasharray="100 100"
-                  animate={{ strokeDashoffset: [200, 0] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "linear", delay: 1 }}
-                />
-
-                <defs>
-                   <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="transparent" />
-                      <stop offset="50%" stopColor="var(--neon-cyan)" />
-                      <stop offset="100%" stopColor="transparent" />
-                   </linearGradient>
-                </defs>
              </svg>
 
-             {/* Hotspots */}
-             {/* Vietnam */}
-             <div className="absolute top-[52%] left-[68%] group/pin">
-                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2, repeat: Infinity }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
+             {/* Region Pins */}
+             <div className="absolute top-[20%] left-[51%] group/pin">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
-                   <p className="text-[10px] font-black text-cyan-400">VIỆT NAM</p>
-                   <p className="text-[8px] text-white">4,280 Nhân sự</p>
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg">
+                   <p className="text-[10px] font-black text-cyan-400">KHU VỰC MIỀN BẮC</p>
+                   <p className="text-[8px] text-white">96% Hồ sơ đúng hạn</p>
                 </div>
              </div>
-
-             {/* Japan */}
-             <div className="absolute top-[40%] left-[75%] group/pin">
-                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }} className="w-4 h-4 bg-purple-500 rounded-full blur-md" />
+             
+             <div className="absolute top-[45%] left-[52%] group/pin">
                 <div className="w-2 h-2 bg-purple-500 rounded-full shadow-[0_0_15px_#bc13fe] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-purple-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
-                   <p className="text-[10px] font-black text-purple-400">NHẬT BẢN</p>
-                   <p className="text-[8px] text-white">1,200 Nhân sự</p>
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-purple-500/30 p-2 rounded-lg">
+                   <p className="text-[10px] font-black text-purple-400">KHU VỰC MIỀN TRUNG</p>
+                   <p className="text-[8px] text-white">92% Hồ sơ đúng hạn</p>
                 </div>
              </div>
 
-             {/* Europe */}
-             <div className="absolute top-[35%] left-[38%] group/pin">
-                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 3, repeat: Infinity, delay: 1 }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
+             <div className="absolute top-[75%] left-[50%] group/pin">
                 <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
-                   <p className="text-[10px] font-black text-cyan-400">CHÂU ÂU</p>
-                   <p className="text-[8px] text-white">850 Nhân sự</p>
-                </div>
-             </div>
-
-             {/* UAE */}
-             <div className="absolute top-[50%] left-[55%] group/pin">
-                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ duration: 2.2, repeat: Infinity, delay: 1.5 }} className="w-4 h-4 bg-cyan-400 rounded-full blur-md" />
-                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg translate-x-2 group-hover/pin:translate-x-0">
-                   <p className="text-[10px] font-black text-cyan-400">UAE</p>
-                   <p className="text-[8px] text-white">650 Nhân sự</p>
+                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg">
+                   <p className="text-[10px] font-black text-cyan-400">KHU VỰC MIỀN NAM</p>
+                   <p className="text-[8px] text-white">95% Hồ sơ đúng hạn</p>
                 </div>
              </div>
            </motion.div>
-
-           {/* Glassmorphism Metric Overlays */}
-           <div className="absolute bottom-6 left-6 flex gap-4">
-              <div className="glass-morphism px-4 py-2 rounded-2xl flex items-center gap-3">
-                 <div className="text-[var(--neon-cyan)]"><Users size={16} /></div>
-                 <div>
-                    <p className="text-[8px] font-bold text-slate-500 uppercase">Tổng nhân tài</p>
-                    <p className="text-sm font-black text-white">18,750</p>
-                 </div>
-              </div>
-              <div className="glass-morphism px-4 py-2 rounded-2xl flex items-center gap-3">
-                 <div className="text-[var(--neon-purple)]"><TrendingUp size={16} /></div>
-                 <div>
-                    <p className="text-[8px] font-bold text-slate-500 uppercase">Tăng trưởng</p>
-                    <p className="text-sm font-black text-white">+14.2%</p>
-                 </div>
-              </div>
-           </div>
-
-           <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
         </div>
       </div>
 
       {/* Strategic Alerts & AI Insights */}
       <div className="lg:col-span-4 space-y-8">
-        {/* Alerts */}
         <div className="glass-morphism p-6 relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all">
-              <AlertCircle size={40} className="text-red-500" />
-           </div>
            <h3 className="text-sm font-black text-white mb-8 flex items-center gap-3">
              <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
-             Cảnh báo chiến lược
+             Cảnh báo & Chỉ đạo
            </h3>
            <div className="space-y-4">
-              <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-4 hover:border-red-500/30 transition-all">
-                 <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1 flex items-center gap-2">
-                    <ShieldCheck size={10} />
-                    RỦI RO NGHIÊM TRỌNG
-                 </p>
-                 <p className="text-xs text-slate-400 leading-relaxed font-medium">Phát hiện gián đoạn chuỗi cung ứng tại khu vực APAC. Dự kiến ảnh hưởng 12% năng suất.</p>
+              <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-4">
+                 <p className="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1">CẢNH BÁO QUÁ HẠN</p>
+                 <p className="text-xs text-slate-400 font-medium font-mono tracking-tight">Lĩnh vực Đất đai: 12 hồ sơ chưa xử lý đúng hạn.</p>
               </div>
-              <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4 hover:border-cyan-500/30 transition-all">
-                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-                    <TrendingUp size={10} />
-                    CƠ HỘI MỚI
-                 </p>
-                 <p className="text-xs text-slate-400 leading-relaxed font-medium">Tín hiệu thâm nhập thị trường mới tại EU cho lĩnh vực đào tạo nhân lực.</p>
+              <div className="bg-cyan-500/5 border border-cyan-500/10 rounded-2xl p-4">
+                 <p className="text-[9px] font-black text-cyan-400 uppercase tracking-widest mb-1">CHÍNH SÁCH MỚI</p>
+                 <p className="text-xs text-slate-400 font-medium font-mono tracking-tight">Cập nhật Nghị định 123/2024 về dịch vụ công.</p>
               </div>
            </div>
         </div>
 
-        {/* AI Insights */}
         <div className="glass-morphism p-6 bg-gradient-to-br from-[#bc13fe]/5 to-transparent relative overflow-hidden">
-           <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--neon-purple)] opacity-[0.03] blur-3xl pointer-events-none" />
            <h3 className="text-sm font-black text-white mb-6 flex items-center gap-3">
-             <Zap size={18} className="text-[var(--neon-purple)] neon-text-purple" />
-             Thông tin từ AI MOLTY
+             <Bot size={18} className="text-[var(--neon-purple)]" />
+             Trợ lý xAI-GM Gợi ý
            </h3>
-           <div className="space-y-6">
-              <div className="flex gap-4 p-3 rounded-2xl hover:bg-white/[0.02] transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20 text-[var(--neon-purple)]">
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white mb-1">Xu hướng tăng trưởng</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Doanh thu dự kiến vượt 2.4x trong quý tiếp theo nhờ tối ưu hóa quy trình.</p>
-                </div>
-              </div>
-              <div className="flex gap-4 p-3 rounded-2xl hover:bg-white/[0.02] transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center shrink-0 border border-cyan-500/20 text-[var(--neon-cyan)]">
-                  <Activity size={20} />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white mb-1">Dự báo tỉ lệ hoàn thành</p>
-                  <p className="text-[10px] text-slate-500 leading-relaxed">Độ chính xác mô hình RAG đạt 98% cho các phản hồi về quyền lợi nhân sự.</p>
-                </div>
-              </div>
+           <div className="space-y-4">
+              <p className="text-[10px] text-slate-500 leading-relaxed italic">"Dữ liệu cho thấy tỉ lệ hồ sơ Bảo hiểm tăng 15%. Đề xuất bổ sung tri thức nDD-2024 cho xAI-BH để tối ưu phản hồi."</p>
            </div>
         </div>
       </div>
     </div>
 
-    {/* Bottom Row: Chart & Risk */}
+    {/* Bottom Row: Field Analysis */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <div className="lg:col-span-7 glass-card p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-[var(--text-main)]">Xu hướng tăng trưởng doanh thu</h3>
-          <select className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-[10px] font-bold text-slate-400 outline-none">
-            <option>6 tháng qua</option>
-          </select>
-        </div>
-        <div className="h-48 flex items-end gap-4 px-2">
-           {[
-             { m: 'T10', v: 45, val: '$12.5M' },
-             { m: 'T11', v: 52, val: '$14.2M' },
-             { m: 'T12', v: 48, val: '$13.1M' },
-             { m: 'T1', v: 65, val: '$18.4M' },
-             { m: 'T2', v: 78, val: '$21.5M' },
-             { m: 'T3', v: 92, val: '$25.8M' }
-           ].map((data, i) => (
-             <div key={i} className="flex-1 flex flex-col items-center gap-3 group h-full">
-                <div className="w-full bg-blue-600/10 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full">
-                   <motion.div 
-                    initial={{ height: 0 }}
-                    animate={{ height: `${data.v}%` }}
-                    className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-xl group-hover:brightness-125 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-                   />
-                   <div className="absolute top-2 opacity-0 group-hover:opacity-100 transition-all transform -translate-y-2 group-hover:translate-y-0 text-[10px] font-black text-white bg-blue-600 px-2 py-1 rounded-lg shadow-xl z-10">
-                    {data.val}
-                   </div>
-                </div>
-                <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{data.m}</span>
-             </div>
-           ))}
-        </div>
-      </div>
-
-      <div className="lg:col-span-5 glass-card p-8">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-lg font-bold text-[var(--text-main)]">Phân tích rủi ro theo phòng ban</h3>
-          <span className="px-3 py-1 rounded-lg bg-green-500/10 text-[9px] font-black text-green-500 uppercase tracking-widest border border-green-500/20">ỔN ĐỊNH</span>
-        </div>
-        <div className="space-y-6">
-           {riskData.map((item, i) => (
-             <div key={i} className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase">
-                   <span>{item.dept}</span>
-                   <span className="text-white">{item.risk}%</span>
-                </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-600 rounded-full" style={{ width: `${item.risk}%` }} />
-                </div>
-             </div>
-           ))}
-        </div>
-      </div>
+       <div className="lg:col-span-12 glass-card p-8 bg-[#121212]/40">
+          <div className="flex justify-between items-center mb-8">
+             <h3 className="text-lg font-bold text-white uppercase tracking-wider">Phân tích hồ sơ theo lĩnh vực</h3>
+             <span className="text-[10px] font-bold text-slate-500">6 THÁNG GẦN NHẤT</span>
+          </div>
+          <div className="h-48 flex items-end gap-6">
+             {riskData.map((item, i) => (
+               <div key={i} className="flex-1 flex flex-col items-center gap-3 group h-full">
+                 <div className="w-full bg-cyan-600/10 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full">
+                    <motion.div 
+                     initial={{ height: 0 }}
+                     animate={{ height: `${item.risk * 2.5}%` }}
+                     className="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-xl"
+                    />
+                 </div>
+                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter text-center whitespace-nowrap">{item.dept}</span>
+               </div>
+             ))}
+          </div>
+       </div>
     </div>
   </motion.div>
 );
+
 
 const DataManager = ({ onUpload }) => {
   const fileInputRef = useRef(null);
@@ -444,8 +296,8 @@ const DataManager = ({ onUpload }) => {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-1">
-          <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight">Trung tâm Nạp dữ liệu</h2>
-          <p className="text-[var(--text-muted)] text-sm">Quản lý nạp tri thức và quy trình xử lý tài liệu</p>
+          <h2 className="text-3xl font-bold text-[var(--text-main)] tracking-tight">Trung tâm Nạp dữ liệu xCB</h2>
+          <p className="text-[var(--text-muted)] text-sm">Quản lý nạp tri thức nghiệp vụ cho các AI Agents địa phương</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 bg-blue-500/5 border border-blue-500/10 px-4 py-2 rounded-full">
@@ -658,145 +510,41 @@ const KnowledgeBase = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Card 1 */}
-            <div className="glass-card p-8 group cursor-pointer hover:border-blue-500/30 transition-all">
-              <div className="flex justify-between items-start mb-8">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                    <Globe className="text-blue-500" size={24} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                { id: "phap_ly", name: "Pháp Luật", docs: 2450, icon: ShieldCheck, color: "blue", status: "RAG HOẠT ĐỘNG" },
+                { id: "bao_hiem", name: "Bảo Hiểm Xã Hội", docs: 1820, icon: ShieldCheck, color: "green", status: "MẬT ĐỘ CAO" },
+                { id: "dat_dai", name: "Tài Nguyên - Đất Đai", docs: 1640, icon: Globe, color: "teal", status: "RAG HOẠT ĐỘNG" },
+                { id: "hanh_chinh", name: "Hành Chính Công", docs: 3100, icon: FileText, color: "blue", status: "MẬT ĐỘ CAO" },
+                { id: "giao_duc", name: "Giáo Dục", docs: 980, icon: GraduationCap, color: "amber", status: "RAG HOẠT ĐỘNG" },
+                { id: "nong_nghiep", name: "Nông Nghiệp", docs: 720, icon: Leaf, color: "lime", status: "ĐANG XỬ LÝ" }
+              ].map((col) => (
+                <div key={col.id} className={`glass-card p-8 group cursor-pointer hover:border-${col.color}-500/30 transition-all`}>
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="flex gap-4">
+                      <div className={`w-12 h-12 rounded-2xl bg-${col.color}-500/10 flex items-center justify-center border border-${col.color}-500/20`}>
+                        <col.icon className={`text-${col.color}-500`} size={24} />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-[var(--text-main)]">{col.name}</h4>
+                        <p className="text-[10px] text-slate-600 font-mono">{col.id}</p>
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-lg bg-${col.color}-500/10 text-[9px] font-black text-${col.color}-500 uppercase tracking-widest border border-${col.color}-500/20`}>{col.status}</span>
                   </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-[var(--text-main)]">Thị trường Nhật Bản</h4>
-                    <p className="text-[10px] text-slate-600 font-mono">nhat_ban</p>
+                  <div className="flex gap-10">
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TÀI LIỆU</p>
+                      <p className="text-lg font-black text-slate-300">{col.docs}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TRẠNG THÁI</p>
+                      <p className="text-lg font-black text-green-500">Sẵn sàng</p>
+                    </div>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-lg bg-blue-500/10 text-[9px] font-black text-blue-500 uppercase tracking-widest border border-blue-500/20">MẬT ĐỘ CAO</span>
-              </div>
-              <div className="flex gap-10 mb-8">
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TÀI LIỆU</p>
-                  <p className="text-lg font-black text-slate-300">1,200</p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">CẬP NHẬT</p>
-                  <p className="text-lg font-black text-slate-300">5p trước</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p className="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">SỨC KHỎE VECTOR</p>
-                <div className="h-10 w-full bg-blue-500/5 rounded-xl overflow-hidden relative">
-                   {/* Simple SVG wave representing health */}
-                   <svg className="absolute bottom-0 left-0 w-full h-8 text-blue-500/40" preserveAspectRatio="none" viewBox="0 0 400 100">
-                     <path d="M0,50 C50,20 100,80 150,50 C200,20 250,80 300,50 C350,20 400,80 400,50 V100 H0 Z" fill="currentColor" />
-                     <path d="M0,60 C50,30 100,90 150,60 C200,30 250,90 300,60 C400,30 400,90 400,60 V100 H0 Z" fill="rgba(59,130,246,0.2)" />
-                   </svg>
-                </div>
-              </div>
+              ))}
             </div>
-
-            {/* Card 2 */}
-            <div className="glass-card p-8 group cursor-pointer hover:border-purple-500/30 transition-all">
-              <div className="flex justify-between items-start mb-8">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                    <Database className="text-purple-500" size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-[var(--text-main)]">Quản lý Thuyền viên</h4>
-                    <p className="text-[10px] text-slate-600 font-mono">thuy_en_vien</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 rounded-lg bg-green-500/10 text-[9px] font-black text-green-500 uppercase tracking-widest border border-green-500/20 text-center leading-tight">RAG HOẠT ĐỘNG</span>
-              </div>
-              <div className="flex gap-10 mb-8">
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TÀI LIỆU</p>
-                  <p className="text-lg font-black text-slate-300">850</p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">CẬP NHẬT</p>
-                  <p className="text-lg font-black text-slate-300">1g trước</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p className="text-[9px] font-black text-purple-500/60 uppercase tracking-widest">SỨC KHỎE VECTOR</p>
-                <div className="h-10 w-full bg-purple-500/5 rounded-xl overflow-hidden relative">
-                   <svg className="absolute bottom-0 left-0 w-full h-8 text-purple-500/40" preserveAspectRatio="none" viewBox="0 0 400 100">
-                     <path d="M0,80 C100,20 200,90 300,40 C400,80 400,0 400,0 V100 H0 Z" fill="currentColor" />
-                   </svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3 */}
-            <div className="glass-card p-8 group cursor-pointer hover:border-amber-500/30 transition-all">
-              <div className="flex justify-between items-start mb-8">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                    <GraduationCap className="text-amber-500" size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-[var(--text-main)]">Trung tâm Đào tạo</h4>
-                    <p className="text-[10px] text-slate-600 font-mono">dao_tao</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 rounded-lg bg-amber-500/10 text-[9px] font-black text-amber-500 uppercase tracking-widest border border-amber-500/20 italic">ĐANG XỬ LÝ</span>
-              </div>
-              <div className="flex gap-10 mb-8">
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TÀI LIỆU</p>
-                  <p className="text-lg font-black text-slate-300">430</p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">CẬP NHẬT</p>
-                  <p className="text-lg font-black text-slate-300">20p trước</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center text-[9px] font-black text-slate-600 transition-all group-hover:text-amber-500/60 transition-all uppercase tracking-widest">
-                  <span>TIẾN TRÌNH EMBEDDING 65%</span>
-                </div>
-                <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full w-[65%] bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4 */}
-            <div className="glass-card p-8 group cursor-pointer hover:border-blue-500/30 transition-all">
-              <div className="flex justify-between items-start mb-8">
-                <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                    <Briefcase className="text-blue-500" size={24} />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold text-[var(--text-main)]">Hành chính - Kế toán</h4>
-                    <p className="text-[10px] text-slate-600 font-mono">hanh_chinh</p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 rounded-lg bg-blue-500/10 text-[9px] font-black text-blue-500 uppercase tracking-widest border border-blue-500/20">MẬT ĐỘ CAO</span>
-              </div>
-              <div className="flex gap-10 mb-8">
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">TÀI LIỆU</p>
-                  <p className="text-lg font-black text-slate-300">1.8k</p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-[0.2em] mb-1">CẬP NHẬT</p>
-                  <p className="text-lg font-black text-slate-300">Hôm qua</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <p className="text-[9px] font-black text-blue-500/60 uppercase tracking-widest">SỨC KHỎE VECTOR</p>
-                <div className="h-10 w-full bg-blue-500/5 rounded-xl overflow-hidden relative">
-                   <svg className="absolute bottom-0 left-0 w-full h-8 text-blue-500/40" preserveAspectRatio="none" viewBox="0 0 400 100">
-                     <path d="M0,80 C50,90 100,70 150,85 C200,95 250,75 300,88 C350,95 400,75 400,85 V100 H0 Z" fill="currentColor" />
-                   </svg>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Right: Semantic Search Preview */}
@@ -823,7 +571,7 @@ const KnowledgeBase = () => {
               <div>
                 <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">TRUY VẤN VÍ DỤ</p>
                 <div className="p-4 bg-white/[0.02] border border-white/5 rounded-2xl cursor-pointer hover:bg-white/5 transition-all">
-                  <p className="text-xs text-slate-400 italic">"Các yêu cầu về visa đối với thị trường Nhật Bản là gì?"</p>
+                  <p className="text-xs text-slate-400 italic">"Quy định về cấp giấy phép xây dựng nhà ở riêng lẻ tại nông thôn?"</p>
                 </div>
               </div>
 
@@ -835,10 +583,10 @@ const KnowledgeBase = () => {
                 <div className="p-6 bg-blue-600/5 border border-blue-500/10 rounded-2xl space-y-3">
                   <div className="flex items-center gap-2 text-blue-400">
                     <FileText size={14} />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">CHINH_SACH_VISA_V4.PDF</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">LUAT_XAY_DUNG_2024_MOI.PDF</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-400">
-                    "Tất cả các thuyền viên được chỉ định cho các tàu thuộc Thị trường Nhật Bản phải sở hữu Số thuyền viên hợp lệ và Visa lao động do Lãnh sự quán cấp..."
+                    "Theo Điều 89 Luật Xây dựng, công trình xây dựng nhà ở riêng lẻ tại nông thôn thuộc khu vực chưa có quy hoạch phát triển đô thị được miễn giấy phép xây dựng..."
                   </p>
                 </div>
               </div>
@@ -1059,10 +807,15 @@ export default function App() {
   };
 
   const agents = [
-    { id: 'nb', initials: 'NB', name: 'MOLTY-NB', desc: 'Thị trường Nhật Bản', status: 'online' },
-    { id: 'tv', initials: 'TV', name: 'MOLTY-TV', desc: 'Quản lý Thuyền viên', status: 'online' },
-    { id: 'hc', initials: 'HC', name: 'MOLTY-HC', desc: 'Hành chính & HR', status: 'away' },
-    { id: 'ceo', initials: 'AI', name: 'MOLTY-CEO', desc: 'Điều hành Hệ thống', status: 'online' },
+    { id: 'pl', initials: 'PL', name: 'xAI-PL', desc: 'Pháp lý', status: 'online' },
+    { id: 'gd', initials: 'GD', name: 'xAI-GD', desc: 'Giáo dục', status: 'online' },
+    { id: 'bh', initials: 'BH', name: 'xAI-BH', desc: 'Bảo hiểm', status: 'online' },
+    { id: 'tn', initials: 'TN', name: 'xAI-TN', desc: 'Tài nguyên', status: 'online' },
+    { id: 'nn', initials: 'NN', name: 'xAI-NN', desc: 'Nông nghiệp', status: 'away' },
+    { id: 'cn', initials: 'CN', name: 'xAI-CN', desc: 'Công nghiệp', status: 'online' },
+    { id: 'hc', initials: 'HC', name: 'xAI-HC', desc: 'Hành chính công', status: 'online' },
+    { id: 'dn', initials: 'DN', name: 'xAI-DN', desc: 'DN & Đầu tư', status: 'online' },
+    { id: 'gm', initials: 'AI', name: 'xAI-GM', desc: 'Giám sát hệ thống', status: 'online' },
   ];
 
   const handleAgentClick = (id) => {
@@ -1077,10 +830,10 @@ export default function App() {
     }
 
     switch(activeTab) {
-      case 'dashboard': return <DashboardCEO stats={dashboardStats} riskData={riskData} />;
+      case 'dashboard': return <DashboardHC stats={dashboardStats} riskData={riskData} />;
       case 'data': return <DataManager onUpload={handleUpload} />;
       case 'kb': return <KnowledgeBase collections={collections} />;
-      default: return <DashboardCEO stats={dashboardStats} riskData={riskData} />;
+      default: return <DashboardHC stats={dashboardStats} riskData={riskData} />;
     }
   };
 
@@ -1090,11 +843,11 @@ export default function App() {
       <aside className="w-72 bg-[var(--sidebar-bg)] border-r border-[var(--border-color)] flex flex-col shrink-0 transition-colors duration-500">
         <div className="p-10 flex items-center gap-4">
           <div className="w-12 h-12 flex items-center justify-center">
-            <img src="/logo.png" alt="xHR Logo" className="w-full h-full object-contain" />
+            <img src="/logo.png" alt="xCB Logo" className="w-full h-full object-contain" />
           </div>
           <div className="leading-tight">
-            <h1 className="font-black text-2xl tracking-tighter text-[var(--text-main)]">xHR</h1>
-            <p className="text-[9px] font-bold text-slate-500 tracking-widest uppercase">AI-Native HRAgent</p>
+            <h1 className="font-black text-2xl tracking-tighter text-[var(--text-main)]">xCB</h1>
+            <p className="text-[9px] font-bold text-slate-500 tracking-widest uppercase">AI Công Chức Địa Phương</p>
           </div>
         </div>
 
@@ -1205,7 +958,7 @@ export default function App() {
             <span className="flex items-center gap-2 text-slate-700">|</span>
             <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-blue-500" /> AI ENGINE: QWEN-2.5-MAX</span>
           </div>
-          <div>© THINH LONG GROUP - xHR V2.1.0</div>
+          <div>© NỀN TẢNG xCB V1.0.0</div>
         </footer>
       </main>
     </div>

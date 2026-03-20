@@ -3,7 +3,7 @@ version: "3.9"
 services:
   app:
     build: .
-    container_name: xhr_app
+    container_name: xcb_app
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -19,7 +19,7 @@ services:
   web:
     build: 
       context: ./web
-    container_name: xhr_web
+    container_name: xcb_web
     restart: unless-stopped
     ports:
       - "5173:5173"
@@ -31,28 +31,28 @@ services:
 
   db:
     image: postgres:16-alpine
-    container_name: xhr_db
+    container_name: xcb_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: xhr_user
-      POSTGRES_PASSWORD: xhr_password
-      POSTGRES_DB: xhr_db
+      POSTGRES_USER: xcb_user
+      POSTGRES_PASSWORD: xcb_password
+      POSTGRES_DB: xcb_db
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U xhr_user -d xhr_db"]
+      test: ["CMD-SHELL", "pg_isready -U xcb_user -d xcb_db"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: xhr_pgadmin
+    container_name: xcb_pgadmin
     restart: unless-stopped
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@thinhlong.vn}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@xcb.local}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
     ports:
       - "127.0.0.1:5050:80"
@@ -61,7 +61,7 @@ services:
 
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: xhr_qdrant
+    container_name: xcb_qdrant
     restart: unless-stopped
     ports:
       - "127.0.0.1:6333:6333"
@@ -71,7 +71,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: xhr_redis
+    container_name: xcb_redis
     restart: unless-stopped
     ports:
       - "127.0.0.1:6379:6379"

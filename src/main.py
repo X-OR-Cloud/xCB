@@ -1,5 +1,5 @@
 """
-src/main.py — FastAPI app entry point cho xHR
+src/main.py — FastAPI app entry point cho xCB Platform
 """
 import structlog
 from contextlib import asynccontextmanager
@@ -46,7 +46,7 @@ log = structlog.get_logger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown logic."""
-    log.info("xHR_startup", env=settings.app_env)
+    log.info("xCB_startup", env=settings.app_env)
 
     # Tạo bảng nếu chưa có (dev only — production dùng alembic)
     if settings.app_env == "development":
@@ -67,14 +67,14 @@ async def lifespan(app: FastAPI):
     # Shutdown
     scheduler.shutdown(wait=False)
     await engine.dispose()
-    log.info("xHR_shutdown")
+    log.info("xCB_shutdown")
 
 
 # ─── App ──────────────────────────────────────────────────────────────
 
 app = FastAPI(
-    title="xHR — AI-native HR Platform",
-    description="Thinh Long Group | 5 MOLTY Agents via Telegram Bot & Web UI",
+    title="xCB — Nền Tảng AI Công Chức Địa Phương",
+    description="xCB Platform | 9 xAI-CB Agents hỗ trợ cán bộ công chức cấp Tỉnh/Huyện/Xã",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -97,7 +97,7 @@ app.include_router(api_router)
 @app.get("/health", tags=["System"])
 async def health_check():
     """Health check endpoint."""
-    return {"status": "ok", "service": "xHR", "env": settings.app_env}
+    return {"status": "ok", "service": "xCB", "version": "1.0.0", "env": settings.app_env}
 
 
 @app.post("/webhook/telegram", status_code=status.HTTP_200_OK, tags=["Telegram"])

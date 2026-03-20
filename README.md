@@ -1,222 +1,92 @@
-<div align="center">
+# xCB: Nền tảng Đa Tác nhân AI cho Công chức Địa phương
 
-# 🤖 xHR — AI-native HR Platform
+![xCB Logo](/logo.png)
 
-**Nền tảng quản lý nhân sự thông minh nâng cường RAG cho Thinh Long Group**
-
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://postgresql.org)
-[![Claude AI](https://img.shields.io/badge/Claude-Anthropic-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](https://anthropic.com)
-[![Qdrant](https://img.shields.io/badge/Qdrant-Vector_DB-ff4b4b?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech)
-[![Redis](https://img.shields.io/badge/Redis-Cache-d82c20?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io)
-
-> **Nền tảng đa kênh (Telegram & Web)** — 5 AI agents chuyên biệt hỗ trợ tự động hoá quy trình HR và quản lý tri thức (RAG). Tích hợp đa mô hình AI tiên tiến: **Claude 3.5 Sonnet**, **Claude 3 Haiku**, **Qwen2.5-VL** và **Qwen3-Embedding**.
-
-</div>
+**xCB** (x-Cloud Bureau) là hệ thống đa tác nhân AI kết hợp lưu trữ dữ liệu tri thức, được thiết kế chuyên biệt để hỗ trợ cán bộ công chức cấp Tỉnh, Huyện, Xã trong việc nâng cao kỹ năng nghiệp vụ và tối ưu hóa quy trình hành chính công.
 
 ---
 
-## 📋 Mục lục
+## 🌟 Tính năng Cốt lõi
 
-- [Tổng quan](#-tổng-quan)
-- [Kiến trúc hệ thống đa tầng](#-kiến-trúc-hệ-thống-đa-tầng)
-- [🖥️ Web Platform — AI Command Center](#️-web-platform--ai-command-center)
-- [🤖 5 MOLTY Agents](#-5-molty-agents)
-- [🛠 AI Stack & Các mô hình AI sử dụng](#-ai-stack--các-mô-hình-ai-sử-dụng)
-- [✨ Tính năng](#-tính-năng)
-- [🚀 Cài đặt & Chạy](#-cài-đặt--chạy)
+- **Hệ sinh thái 9 xAI-CB Agents**: Mỗi Agent được huấn luyện chuyên sâu cho từng lĩnh vực nghiệp vụ.
+- **RAG (Retrieval-Augmented Generation)**: Truy xuất thông tin chính xác từ kho văn bản pháp luật, nghị định, thông tư của địa phương.
+- **Trung tâm Nạp dữ liệu**: Hỗ trợ OCR và Vector hóa các tài liệu hành chính, hồ sơ công việc.
+- **Dashboard Điều hành**: Giám sát thời gian thực tỉ lệ xử lý hồ sơ, hiệu suất cán bộ và cảnh báo rủi ro quá hạn.
+- **Bản đồ Hiệu suất**: Trực quan hóa dữ liệu hành chính theo từng địa bàn quản lý.
 
----
+## 🤖 Danh sách AI Agents (xAI-CB)
 
-## 🎯 Tổng quan
-
-**xHR** là nền tảng quản lý nhân sự thế hệ mới dành riêng cho **Thinh Long Group**. Không chỉ quản lý hồ sơ nhân viên và học viên, xHR còn đóng vai trò là "Bộ não tri thức" tập trung, cho phép truy vấn dữ liệu nghiệp vụ và tài liệu pháp lý trực tiếp qua hội thoại Telegram.
-
----
-
-## 🏗 Kiến trúc hệ thống đa tầng
-
-Hệ thống được thiết kế để cân bằng giữa **Độ chính xác**, **Tốc độ** và **Chi phí**.
-
-```mermaid
-graph TD
-    TUser((Telegram User)) -->|Tin nhắn| Cache{Redis Cache}
-    WUser((Web User)) -->|Click/Chat| WebUI[xHR Web Command Center]
-    
-    WebUI -->|REST API| API_Router[Web API Router]
-    Cache -->|Hit| TUser
-    Cache -->|Miss| T_Router[Telegram Message Router]
-    
-    subgraph "Nghiệp vụ Routing"
-        T_Router -->|Regex/Match| Agent[MOLTY Agents]
-        T_Router -->|Fallback/Intent| Haiku[[Claude 3 Haiku - Router]]
-        Haiku --> Agent
-        API_Router -->|Agent ID| Agent
-    end
-    
-    subgraph "Reasoning & Knowledge"
-        Agent -->|SQL Query| DB[(PostgreSQL 16)]
-        Agent -->|Vector Search| VDB[(Qdrant Vector DB)]
-        VDB -->|Context| Sonnet[[Claude 3.5 Sonnet - RAG Engine]]
-        DB -->|Data| Sonnet
-    end
-
-    Sonnet -->|Trả lời thông minh| Cache
-    Sonnet --> TUser
-    Sonnet -->|JSON Result| API_Router
-    API_Router --> WebUI
-
-    subgraph "Ingestion Pipeline"
-        WebUI -->|Upload| CEPH[(X-OR CLOUD - S3)]
-        CEPH --> Qwen[[Qwen2.5-VL-72B - Image OCR]]
-        Qwen --> Embed[[Qwen3-Embedding - Vectorize]]
-        Embed --> VDB
-    end
-```
+1.  **xAI-PL (Pháp lý)**: Tra cứu quy định, nghị định và tư vấn pháp luật.
+2.  **xAI-GD (Giáo dục)**: Hỗ trợ quản lý giáo dục và đào tạo.
+3.  **xAI-BH (Bảo hiểm)**: Giải đáp chính sách BHXH, BHYT.
+4.  **xAI-TN (Tài nguyên)**: Nghiệp vụ Đất đai, Môi trường.
+5.  **xAI-NN (Nông nghiệp)**: Kỹ thuật sản xuất, hỗ trợ nông thôn.
+6.  **xAI-CN (Công nghiệp)**: Quản lý khu công nghiệp, sản xuất.
+7.  **xAI-HC (Hành chính công)**: Hướng dẫn thủ tục, quy trình một cửa.
+8.  **xAI-DN (DN & Đầu tư)**: Xúc tiến đầu tư và hỗ trợ doanh nghiệp địa phương.
+9.  **xAI-GM (Giám sát)**: Tổng hợp báo cáo và giám sát hệ thống.
 
 ---
 
-## 🖥️ Web Platform — AI Command Center
+## 🚀 Hướng dẫn Cài đặt & Triển khai
 
-Bên cạnh giao diện Telegram, **xHR** cung cấp một trang điều hành tập trung (Command Center) với thiết kế **Glassmorphism** cao cấp, tối ưu cho việc giám sát chiến lược và quản trị dữ liệu lớn.
+### Yêu cầu Hệ thống
+- Docker & Docker Compose
+- Python 3.12+
+- Node.js 20+ (cho phát triển Frontend)
 
-### 📊 CEO Dashboard
-*   **Bản đồ Nhân lực**: Theo dõi sự phân bổ lao động toàn cầu theo thời gian thực.
-*   **Chiến lược & Rủi ro**: AI phân tích các chỉ số rủi ro theo từng phòng ban và dự báo xu hướng tăng trưởng.
-*   **Cảnh báo Thông minh**: Tổng hợp các vấn đề cấp bách cần Lãnh đạo phê duyệt hoặc xử lý.
-
-### 📥 Trung tâm Nạp tri thức (Ingestion Center)
-*   **Pipeline Xử lý**: Theo dõi trực quan quá trình OCR và Vector hóa tài liệu.
-*   **Local Folder Sync**: Tự động giám sát và nạp dữ liệu từ các thư mục máy quét nội bộ.
-*   **Tải lên Thủ công**: Hỗ trợ kéo thả PDF, Word và Hình ảnh để mở rộng kho tri thức RAG.
-
-### 🧠 Kho Tri thức & Chat
-*   **Semantic Search**: Tìm kiếm nội dung theo ngữ nghĩa, bỏ qua rào cản từ khóa thông thường.
-*   **Đa Agent**: Chat trực tiếp với 5 MOLTY Agents (CEO, Nhật Bản, Thuyền viên, Đào tạo, Hành chính) ngay trên nền tảng Web.
-
----
-
-## 🤖 5 MOLTY Agents
-
-| Agent | Phòng ban | Chuyên môn | Skills tiêu biểu |
-|---|---|---|---|
-| **MOLTY-NB** | `nhat_ban` | Nhật Bản | Quản lý hồ sơ LD, Pipeline tiến độ, Cảnh báo Visa/Hộ chiếu |
-| **MOLTY-TV** | `thuy_en_vien` | Thuyền viên | Đơn tàu, Chứng chỉ chuyên môn, Lịch bay, RAG quy trình chủ tàu |
-| **MOLTY-DT** | `dao_tao` | Trung tâm Đào tạo | Điểm danh tự động, Lịch học, Quản lý điểm học viên |
-| **MOLTY-HC** | `hanh_chinh` | HC - Kế toán | Trình ký văn bản, Phí & Thanh toán, BHXH, RAG Hợp đồng LD |
-| **MOLTY-CEO** | `lanh_dao` | Ban Lãnh đạo | Dashboard tổng hợp, Phân tích rủi ro, Báo cáo tài chính nhanh |
-
----
-
-## 💡 Các kịch bản tương tác phổ biến
-
-Người dùng (nhân viên) có thể tương tác với các Agent thông qua Telegram bằng ngôn ngữ tự nhiên:
-
-### 🇯🇵 Thị trường Nhật Bản (MOLTY-NB)
-*   *"Danh sách 10 hồ sơ lao động mới nhập gần nhất"*
-*   *"Kiểm tra tiến độ pipeline của lao động Nguyễn Văn A"*
-*   *"Cảnh báo giúp tôi những hộ chiếu nào sắp hết hạn trong 3 tháng tới"*
-*   *"Báo cáo tổng quan tình hình thị trường Nhật Bản hiện tại"*
-
-### ⚓ Crew Management (MOLTY-TV)
-*   *"Tra cứu các đơn tàu đang tuyển thuyền viên gấp"*
-*   *"Thuyền viên Trần Văn B đã có đủ chứng chỉ chuyên môn chưa?"*
-*   *"Cho tôi xem lịch bay dự kiến của đoàn đi Hàn Quốc tuần sau"*
-*   *"RAG: Quy trình thay thế thuyền viên của chủ tàu Mitsui như thế nào?"*
-
-### 🖋️ Admin & Kế toán (MOLTY-HC)
-*   *"Kiểm tra xem tôi có văn bản nào đang chờ phê duyệt không?"*
-*   *"Liệt kê các khoản phí quá hạn thanh toán của các nghiệp đoàn"*
-*   *"Nhắc lịch đóng BHXH tháng này"*
-*   *"RAG: Theo quy định công ty, nhân viên làm việc 3 năm được hưởng bao nhiêu ngày phép?"*
-
-### 🎓 Trung tâm Đào tạo (MOLTY-DT)
-*   *"Báo cáo điểm danh lớp tiếng Nhật N4 sáng nay"*
-*   *"Lịch học và phòng học của các lớp khai giảng trong tháng 3"*
-*   *"Kết quả thi định kỳ của học viên lớp nguồn K25"*
-
-### 📊 Ban Lãnh đạo (MOLTY-CEO)
-*   *"Tổng doanh thu dự kiến của quý 1 là bao nhiêu?"*
-*   *"Phân tích rủi ro các đơn hàng bị chậm pipeline"*
-*   *"Gửi báo cáo nhanh về số lượng lao động đã xuất cảnh từ đầu năm"*
-
----
-
-## 🛠 AI Stack & Các mô hình AI sử dụng
-
-Dự án sử dụng chiến lược **Multi-LLM** để tối ưu hóa hiệu năng:
-
-| Mô hình AI | Vai trò trong hệ thống | Lý do chọn lựa |
-|---|---|---|
-| **Claude 3.5 Sonnet** | **Bộ não chính (Reasoning)** | Trả lời chính xác nhất, tổng hợp RAG và viết phản hồi tiếng Việt tự nhiên. |
-| **Claude 3 Haiku** | **Điều phối viên (Router)** | Tốc độ cực nhanh, giá siêu rẻ (~1/12 Sonnet) chuyên cho phân loại Intent. |
-| **Qwen2.5-VL-72B** | **Thị giác máy tính (OCR)** | Khả năng đọc PDF và ảnh tài liệu (hợp đồng, bảng biểu) xuất sắc dạng Markdown. |
-| **Qwen3-Embedding** | **Véc-tơ hóa tri thức** | Được tối ưu cho ngôn ngữ tiếng Việt và các văn bản nghiệp vụ phức tạp. |
-
----
-
-## 💰 Chiến lược tối ưu chi phí (Cost Efficiency)
-
-Hệ thống xHR được thiết kế để phục vụ quy mô lớn (10.000+ người) với chi phí thấp nhất:
-
-1.  **Model Tiering (Phân cấp mô hình)**: 
-    *   Sử dụng **Claude 3 Haiku** cho tác vụ định tuyến tin nhắn.
-    *   Chỉ dùng **Claude 3.5 Sonnet** khi thực sự cần tư duy phức tạp hoặc tổng hợp dữ liệu RAG.
-2.  **Outcome Caching (Redis)**: 
-    *   Lưu trữ câu trả lời AI cho các câu hỏi trùng lặp trong 24 giờ. 
-    *   **Tiết kiệm 100%** chi phí token cho các yêu cầu lặp đi lặp lại.
-3.  **Prompt Caching (Native)**: 
-    *   Sử dụng tính năng Caching của Anthropic cho các System Prompts dài của 5 Agents.
-    *   Giảm tới **90% chi phí xử lý Input** các đoạn nội dung cố định.
-4.  **Vision Optimization**: 
-    *   Tự động giảm độ phân giải & nén ảnh thông minh trước khi gửi qua API OCR.
-    *   Giảm **60-70% số lượng Vision Tokens** tiêu thụ.
-
----
-
-## ✨ Tính năng nổi bật
-
-- 🧠 **RAG (Retrieval-Augmented Generation)**: Chụp tài liệu và hỏi đáp trực tiếp với kho dữ liệu không cấu trúc.
-- ⚡ **Real-time Alerting**: Tự động nhắc lịch qua Telegram (Hộ chiếu, Hợp đồng, BHXH).
-- 📊 **Hybrid Data Access**: Kết hợp dữ liệu từ SQL (chính xác tuyệt đối) và Vector Search (linh hoạt).
-- 🔒 **Security & Audit**: Phân quyền truy cập tài liệu theo phòng ban và ghi nhật ký Audit Log chi tiết.
-- ⏰ **Automated Workflows**: Hệ thống tự động xử lý các tác vụ lặp lại thông qua APScheduler:
-    - **Nhắc lịch**: Điểm danh (4 lần/ngày), đóng BHXH (ngày 20 hàng tháng).
-    - **Cảnh báo**: Hộ chiếu/Visa hết hạn (<90 ngày), Hợp đồng hết hạn (<60 ngày).
-    - **AI Email**: Tự động dùng Claude soạn và gửi email nhắc gia hạn hợp đồng cho học viên.
-    - **Phê duyệt**: Nhắc trình ký tồn đọng mỗi 30 phút.
-    - **Báo cáo**: Tự động gửi báo cáo tổng hợp cho Lãnh đạo vào chiều thứ Sáu.
-
----
-
-## 🚀 Cài đặt & Chạy
+### Triển khai nhanh với Docker
 
 ```bash
-# 1. Clone & Cấu hình môi trường
+# 1. Clone repository
+git clone https://github.com/your-username/xcb-platform.git
+cd xcb-platform
+
+# 2. Cấu hình môi trường
 cp .env.example .env
+# Chỉnh sửa .env với API Keys (LLM, Qdrant...)
 
-# 2. Khởi chạy Backend & Databases (Docker)
+# 3. Khởi chạy hệ thống
 docker-compose up -d --build
+```
 
-# 3. Migrate Database
-docker-compose exec app alembic upgrade head
+- **Frontend**: [http://localhost:5173](http://localhost:5173)
+- **Backend API**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Cơ sở dữ liệu (PostgreSQL)**: Port 5432
+- **Vector DB (Qdrant)**: Port 6333
 
-# 4. Chạy Frontend (Web UI)
-cd web
-npm install
-npm run dev
+---
+
+## 🛠 Kiến trúc Kỹ thuật
+
+- **Backend**: FastAPI, SQLAlchemy, Alembic.
+- **Frontend**: React (Vite), TailwindCSS, Framer Motion, Lucide Icons.
+- **AI/LLM**: Tích hợp Qwen-2.5, GPT-4, Gemini (tùy cấu hình).
+- **Database**: PostgreSQL (SQL), Qdrant (Vector).
+- **Cache/Queue**: Redis.
+
+---
+
+## 📁 Cấu trúc Thư mục
+
+```text
+├── src/                    # Mã nguồn Backend
+│   ├── agents/             # Định nghĩa 9 xAI agents
+│   ├── database/           # Models & Migrations
+│   ├── main.py             # FastAPI Entry point
+│   └── api_router.py       # REST API Endpoints
+├── web/                    # Mã nguồn Frontend (React)
+├── alembic/                # Quản lý di cư database
+├── docker-compose.yml      # Cấu hình Docker
+└── README.md               # Tài liệu hướng dẫn
 ```
 
 ---
 
-<div align="center">
+## 📧 Liên hệ & Hỗ trợ
 
-## Về X-OR CLOUD
-xHR là sản phẩm của X-OR CLOUD — nền tảng cloud và AI có chủ quyền hàng đầu tại Việt Nam và khu vực Đông Nam Á.
+**Đội ngũ Phát triển xCB**  
+Email: support@xcb.local  
+Website: [https://xcb.local](https://xcb.local)
 
-**Built with ❤️ for Thinh Long Group**
-
-*Powered by [Anthropic Claude](https://anthropic.com) · [Qwen AI](https://github.com/QwenLM/Qwen) · [Qdrant](https://qdrant.tech) · [Redis](https://redis.io)*
-
-</div>
+© 2026 xCB - Nền tảng AI Công chức Việt Nam.
