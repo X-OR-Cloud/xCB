@@ -1,6 +1,6 @@
 # xCB Platform - Trợ lý AI Đa năng cho Cán bộ Công chức Địa phương
 
-**xCB (x-OR Cloud Bureaucracy)** là nền tảng AI đột phá, được thiết kế để trở thành "người cộng sự số" đắc lực cho cán bộ công chức tại các cấp Tỉnh, Huyện, Xã. Hệ thống tích hợp các tác nhân AI (AI Agents) chuyên sâu để hỗ trợ nghiệp vụ, tra cứu pháp luật và tối ưu hóa quy trình hành chính công.
+**xCB (x-OR Cloud Bureaucracy)** là nền tảng AI đột phá, được thiết kế để trở thành "người cộng sự số" đắc lực cho cán bộ công chức tại các cấp Tỉnh, Huyện, Xã. Hệ thống tích hợp các tác nhân AI (AI Agents) chuyên sâu không chỉ để hỗ trợ nghiệp vụ, tra cứu pháp luật mà còn trực tiếp **thực thi các quy trình tự động hóa** thay thế cho các tác vụ thủ công lặp lại.
 
 ---
 
@@ -20,52 +20,61 @@ Hệ thống bao gồm 9 "Chuyên gia số" luôn sẵn sàng hỗ trợ 24/7:
 
 ---
 
-## 💡 Kịch bản Tương tác Hỗ trợ Cán bộ
+## 🚀 Khả năng Thực thi & Tự động hóa Nghiệp vụ (Beyond Chat)
 
-### 1. Tra cứu & Cân cứ Pháp lý (Nhanh chóng - Chính xác)
-*   **Tình huống**: Cán bộ cần xác định một quy định trong nghị định mới.
-*   **Tương tác**: 
-    *   *Cán bộ*: "Nghị định 100/2024 về đất đai có thay đổi gì về hạn mức giao đất không?"
-    *   *xAI-PL*: "Dựa trên Nghị định 100/2024, Điều 15 quy định hạn mức giao đất đã được điều chỉnh tăng 10% so với trước đây... (Trích dẫn văn bản chi tiết)."
+xCB không chỉ là một công cụ chat thông thường, mà là một **"Nhân viên số" (Digital Worker)** có khả năng thực hiện các nghiệp vụ thay cho con người:
 
-### 2. Hỗ trợ Giải quyết Thủ tục Hành chính
-*   **Tình huống**: Hướng dẫn người dân làm thủ tục tại bộ phận Một cửa.
-*   **Tương tác**:
-    *   *Cán bộ*: "Liệt kê hồ sơ cần thiết để đăng ký biến động đất đai do thừa kế?"
-    *   *xAI-HC*: "Cán bộ cần yêu cầu người dân chuẩn bị: 1. Giấy chứng nhận quyền sử dụng đất; 2. Văn bản khai nhận di sản thừa kế có công chứng; 3. Tờ khai thuế... (Hướng dẫn chi tiết)."
+### ⏱️ Tự động Rà soát & Cảnh báo Chủ động
+AI không đợi cán bộ hỏi mà chủ động quét cơ sở dữ liệu định kỳ để:
+*   Phát hiện và gửi thông báo nhắc lịch đóng **BHXH, Thuế** trước hạn.
+*   Cảnh báo các **Hợp đồng, Giấy phép** sắp hết hạn trong 30-60 ngày tới.
+*   Truy vết các khoản **Phí và Thanh toán** quá hạn để cán bộ kịp thời xử lý.
 
-### 3. Giám sát & Báo cáo Tình hình Nghiệp vụ
-*   **Tình huống**: Lãnh đạo cần tổng hợp tình hình hồ sơ cuối tháng.
-*   **Tương tác**:
-    *   *Lãnh đạo*: "Thống kê tỉ lệ hồ sơ trễ hạn của các xã trong huyện tháng qua."
-    *   *xAI-GM*: "Tháng này có 12 hồ sơ trễ hạn (giảm 5% so với tháng trước). Xã A có tỉ lệ xử lý đúng hạn cao nhất (99%)... (Gửi kèm link dashboard)."
+### 📝 Điều phối Luồng Trình ký & Phê duyệt
+Tích hợp trực tiếp vào quy trình phê duyệt văn bản:
+*   Tổng hợp danh sách văn bản đang chờ phê duyệt và gửi tóm tắt qua Telegram cho lãnh đạo.
+*   Lãnh đạo có thể thực hiện thao tác duyệt/yêu cầu sửa đổi ngay trên giao diện chat.
+*   Tự động cập nhật trạng thái vào hệ thống quản lý tập trung.
+
+### 📂 Tự động hóa Nhập liệu & Xử lý Văn bản (OCR)
+Giải phóng cán bộ khỏi các tác vụ nhập liệu thủ công:
+*   **Trích xuất dữ liệu**: Cán bộ chỉ cần gửi ảnh chụp CCCD, Sổ đỏ hoặc văn bản qua chat, AI tự động dùng OCR để bóc tách thông tin và điền vào các bảng biểu liên quan.
+*   **Phân loại tri thức tự động**: Các văn bản pháp quy mới nạp vào sẽ được AI tự động phân loại, gắn nhãn và vector hóa vào kho tri thức RAG.
+
+### 📊 Tự động Tổng hợp Báo cáo Số liệu
+*   Tự động truy xuất dữ liệu từ nhiều nguồn (PostgreSQL, Vector DB, Excel) để xây dựng báo cáo phân tích theo yêu cầu bằng ngôn ngữ tự nhiên, không cần lập trình viên can thiệp.
+
+---
+
+## 💡 Kịch bản Tương tác tiêu biểu
+
+### 1. Xử lý hồ sơ thông minh
+*   **Cán bộ**: (Gửi ảnh chụp Nghị định mới) "Nạp văn bản này vào kho tri thức và tóm tắt các điểm quan trọng cho tôi."
+*   **AI Agent**: "Đã nhận diện file Scan. Tôi đã phân loại vào mục 'Pháp luật Đất đai' và tóm tắt 03 điểm mới về giá đền bù tại Điều 20... (Hiển thị tóm tắt)."
+
+### 2. Thực thi nghiệp vụ tự động
+*   **AI (Chủ động gửi tin nhắn)**: "Chào anh/chị, tôi phát hiện có 05 hợp đồng thuê đất tại xã X sẽ hết hạn vào tháng tới. Tôi đã chuẩn bị sẵn danh sách và mẫu thông báo gia hạn, anh/chị có muốn gửi duyệt ngay không?"
+*   **Cán bộ**: "Duyệt gửi cho lãnh đạo danh sách này."
 
 ---
 
 ## 🛠 Công cụ & Phương thức Tương tác
 
-Hệ thống cung cấp trải nghiệm đa nền tảng, đảm bảo cán bộ có thể sử dụng mọi lúc, mọi nơi:
-
 ### 📱 Telegram Bot Integration
-*   **Đặc điểm**: Phản hồi tức thì, giao diện chat thân thiện.
-*   **Ưu điểm**: Không cần cài đặt phần mềm phức tạp, hỗ trợ gửi tệp tài liệu, vị trí và hình ảnh trực tiếp để AI phân tích.
+*   Phản hồi tức thì, giao diện chat thân thiện.
+*   Hỗ trợ tương tác command-base cho các lệnh thực thi nhanh.
 
 ### 🌐 Smart Dashboard (Web Interface)
-*   **Đặc điểm**: Trung tâm điều hành tập trung dành cho lãnh đạo và quản trị viên.
-*   **Tính năng**: Xem biểu đồ KPI thời gian thực, quản lý kho tri thức RAG, và giám sát hiệu suất của các AI Agents.
-
-### 📚 Kho Tri thức RAG (Retrieval-Augmented Generation)
-*   **Đặc điểm**: "Bộ não" của hệ thống được nạp dữ liệu từ các văn bản nội bộ của địa phương.
-*   **Khả năng**: Đọc hiểu hàng ngàn trang tài liệu PDF, Word để trả lời chính xác theo đặc thù của từng tỉnh/thành.
+*   Trung tâm điều hành tập trung để giám sát các Robot đang chạy tự động.
+*   Quản lý trực quan luồng dữ liệu và kho tri thức.
 
 ---
 
 ## 🚀 Hướng dẫn Triển khai Nhanh
 
 1.  **Cấu hình**: Cập nhật file `.env` với API Key (Claude/Gemini) và Telegram Token.
-2.  **Khởi tạo**: Chạy `docker-compose up -d` để dựng toàn bộ hệ thống (Database, Redis, API, Frontend).
-3.  **Nạp tri thức**: Sử dụng Dashboard để upload các văn bản pháp quy của địa phương vào kho tri thức.
-4.  **Kết nối**: Quét mã QR hoặc tìm kiếm Telegram Bot ID để bắt đầu tương tác.
+2.  **Khởi tạo**: Chạy `docker-compose up -d`.
+3.  **Tác vụ tự động**: Thiết lập các cron-job trong hệ thống để AI chủ động rà soát dữ liệu.
 
 ---
 *Dự án được phát triển bởi đội ngũ công nghệ vì sự nghiệp hiện đại hóa nền hành chính công Việt Nam.*
