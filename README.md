@@ -1,6 +1,6 @@
 # xCB Platform - Nền tảng Đa tác nhân AI phục vụ Công chức Địa phương
 
-**xCB (x-OR Cloud Bureaucracy)** là giải pháp AI tiên tiến được thiết kế riêng cho cán bộ công chức cấp Tỉnh, Huyện, Xã tại Việt Nam. Hệ thống kết hợp sức mạnh của các tác nhân AI (AI Agents) chuyên biệt cùng khả năng lưu trữ và xử lý tri thức nghiệp vụ khổng lồ, giúp tối ưu hóa hiệu suất hành chính và hỗ trợ ra quyết định chính xác.
+**xCB (x-OR Cloud Bureaucracy)** là giải pháp AI tiên tiến được thiết kế riêng cho cán bộ công chức cấp Tỉnh, Xã tại Việt Nam. Hệ thống kết hợp sức mạnh của các tác nhân AI (AI Agents) chuyên biệt cùng khả năng lưu trữ và xử lý tri thức nghiệp vụ khổng lồ, giúp tối ưu hóa hiệu suất hành chính và hỗ trợ ra quyết định chính xác.
 
 ---
 
