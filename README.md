@@ -1,92 +1,76 @@
-# xCB: Nền tảng Đa Tác nhân AI cho Công chức Địa phương
+# xCB Platform - Nền tảng Đa tác nhân AI phục vụ Công chức Địa phương
 
-![xCB Logo](/logo.png)
-
-**xCB** (x-Cloud Bureau) là hệ thống đa tác nhân AI kết hợp lưu trữ dữ liệu tri thức, được thiết kế chuyên biệt để hỗ trợ cán bộ công chức cấp Tỉnh, Huyện, Xã trong việc nâng cao kỹ năng nghiệp vụ và tối ưu hóa quy trình hành chính công.
+**xCB (x-OR Cloud Bureaucracy)** là giải pháp AI tiên tiến được thiết kế riêng cho cán bộ công chức cấp Tỉnh, Huyện, Xã tại Việt Nam. Hệ thống kết hợp sức mạnh của các tác nhân AI (AI Agents) chuyên biệt cùng khả năng lưu trữ và xử lý tri thức nghiệp vụ khổng lồ, giúp tối ưu hóa hiệu suất hành chính và hỗ trợ ra quyết định chính xác.
 
 ---
 
-## 🌟 Tính năng Cốt lõi
+## 🚀 Tính năng Cốt lõi
 
-- **Hệ sinh thái 9 xAI-CB Agents**: Mỗi Agent được huấn luyện chuyên sâu cho từng lĩnh vực nghiệp vụ.
-- **RAG (Retrieval-Augmented Generation)**: Truy xuất thông tin chính xác từ kho văn bản pháp luật, nghị định, thông tư của địa phương.
-- **Trung tâm Nạp dữ liệu**: Hỗ trợ OCR và Vector hóa các tài liệu hành chính, hồ sơ công việc.
-- **Dashboard Điều hành**: Giám sát thời gian thực tỉ lệ xử lý hồ sơ, hiệu suất cán bộ và cảnh báo rủi ro quá hạn.
-- **Bản đồ Hiệu suất**: Trực quan hóa dữ liệu hành chính theo từng địa bàn quản lý.
+### 1. Hệ thống Đa tác nhân xAI-CB (Multi-Agent System)
+Hệ thống tích hợp 9 AI Agents chuyên trách cho từng lĩnh vực nghiệp vụ:
+- **xAI-PL**: Tư vấn Pháp lý, giải đáp các nghị định, thông tư mới nhất.
+- **xAI-GD**: Hỗ trợ nghiệp vụ Giáo dục và Đào tạo.
+- **xAI-BH**: Chuyên gia Bảo hiểm xã hội và chính sách an sinh.
+- **xAI-TN**: Quản lý tài nguyên, môi trường và đất đai.
+- **xAI-NN**: Hỗ trợ kỹ thuật và chính sách nông nghiệp, nông thôn.
+- **xAI-CN**: Tư vấn phát triển công nghiệp và hạ tầng.
+- **xAI-HC**: Điều phối thủ tục hành chính công và dịch vụ một cửa.
+- **xAI-DN**: Trợ lý hỗ trợ doanh nghiệp và thu hút đầu tư.
+- **xAI-GM**: Hệ thống giám sát, tổng hợp và phân tích dữ liệu đa kênh.
 
-## 🤖 Danh sách AI Agents (xAI-CB)
+### 2. Trung tâm Điều hành Dashboard Thông minh
+- **Biểu đồ Hiệu suất AI**: Theo dõi số lượng nhiệm vụ AI hỗ trợ công chức theo Ngày/Tháng/Năm.
+- **So sánh Trực quan**: Đường biểu đồ "Tổng nhiệm vụ" vs "AI xử lý" giúp đánh giá tỉ lệ tự động hóa.
+- **Phân tích Lĩnh vực**: Biểu đồ đường (Line Chart) theo dõi biến động hồ sơ giữa các phòng ban.
+- **KPI Real-time**: Theo dõi tỉ lệ đúng hạn, hồ sơ đang chờ và hồ sơ quá hạn ngay lập tức.
 
-1.  **xAI-PL (Pháp lý)**: Tra cứu quy định, nghị định và tư vấn pháp luật.
-2.  **xAI-GD (Giáo dục)**: Hỗ trợ quản lý giáo dục và đào tạo.
-3.  **xAI-BH (Bảo hiểm)**: Giải đáp chính sách BHXH, BHYT.
-4.  **xAI-TN (Tài nguyên)**: Nghiệp vụ Đất đai, Môi trường.
-5.  **xAI-NN (Nông nghiệp)**: Kỹ thuật sản xuất, hỗ trợ nông thôn.
-6.  **xAI-CN (Công nghiệp)**: Quản lý khu công nghiệp, sản xuất.
-7.  **xAI-HC (Hành chính công)**: Hướng dẫn thủ tục, quy trình một cửa.
-8.  **xAI-DN (DN & Đầu tư)**: Xúc tiến đầu tư và hỗ trợ doanh nghiệp địa phương.
-9.  **xAI-GM (Giám sát)**: Tổng hợp báo cáo và giám sát hệ thống.
+### 3. Kho Tri thức RAG (Retrieval Augmented Generation)
+- **Quản lý Vector**: Chuyển đổi hàng triệu tài liệu pháp lý thành vector embeddings để tìm kiếm ngữ nghĩa.
+- **Thống kê Phân bổ**: Theo dõi số lượng tài liệu tri thức trong từng lĩnh vực (Hành chính, Pháp luật, Đất đai...).
+- **Semantic Search**: Tìm kiếm nội dung dựa trên ý nghĩa, giúp cán bộ tìm thấy căn cứ pháp lý chỉ trong vài giây.
+
+### 4. Trung tâm Nạp dữ liệu xCB
+- **Xử lý Thông minh**: Tích hợp OCR (nhận dạng ký tự quang học) và tự động hóa quy trình Vector hóa.
+- **Hàng đợi Xử lý**: Theo dõi tiến độ nạp tri thức từ các tệp PDF, Word, Ảnh qua mockdata trực quan.
+- **Quản lý Lưu trữ**: Giám sát dung lượng lưu trữ cấp độ Terabyte (TB) và dự báo tình hình sử dụng.
 
 ---
 
-## 🚀 Hướng dẫn Cài đặt & Triển khai
+## 🛠 Công nghệ Sử dụng
 
-### Yêu cầu Hệ thống
-- Docker & Docker Compose
-- Python 3.12+
-- Node.js 20+ (cho phát triển Frontend)
+- **Backend**: FastAPI (Python), SQLAlchemy, PostgreSQL.
+- **AI/ML**: LangChain, OpenAI/Gemini SDK, Qdrant (Vector Database).
+- **Frontend**: React.js, TailwindCSS, Framer Motion, Lucide React.
+- **Infrastructure**: Docker, Docker Compose, Redis.
 
-### Triển khai nhanh với Docker
+---
 
+## 📦 Hướng dẫn Triển khai (Docker)
+
+### 1. Yêu cầu Hệ thống
+- Docker & Docker Compose (V2)
+- Tối thiểu 4GB RAM
+
+### 2. Khởi động nhanh
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/xcb-platform.git
-cd xcb-platform
+# Clone dự án
+git clone [URL_GIAO_DIEN_GIT]
+cd xCB
 
-# 2. Cấu hình môi trường
+# Cấu hình môi trường
 cp .env.example .env
-# Chỉnh sửa .env với API Keys (LLM, Qdrant...)
 
-# 3. Khởi chạy hệ thống
+# Khởi chạy toàn bộ hệ thống
 docker-compose up -d --build
 ```
 
-- **Frontend**: [http://localhost:5173](http://localhost:5173)
-- **Backend API**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Cơ sở dữ liệu (PostgreSQL)**: Port 5432
-- **Vector DB (Qdrant)**: Port 6333
+### 3. Truy cập Ứng dụng
+- **Giao diện người dùng**: `http://localhost:5173`
+- **Tài liệu API (Swagger)**: `http://localhost:8000/docs`
 
 ---
 
-## 🛠 Kiến trúc Kỹ thuật
-
-- **Backend**: FastAPI, SQLAlchemy, Alembic.
-- **Frontend**: React (Vite), TailwindCSS, Framer Motion, Lucide Icons.
-- **AI/LLM**: Tích hợp Qwen-2.5, GPT-4, Gemini (tùy cấu hình).
-- **Database**: PostgreSQL (SQL), Qdrant (Vector).
-- **Cache/Queue**: Redis.
-
----
-
-## 📁 Cấu trúc Thư mục
-
-```text
-├── src/                    # Mã nguồn Backend
-│   ├── agents/             # Định nghĩa 9 xAI agents
-│   ├── database/           # Models & Migrations
-│   ├── main.py             # FastAPI Entry point
-│   └── api_router.py       # REST API Endpoints
-├── web/                    # Mã nguồn Frontend (React)
-├── alembic/                # Quản lý di cư database
-├── docker-compose.yml      # Cấu hình Docker
-└── README.md               # Tài liệu hướng dẫn
-```
-
----
-
-## 📧 Liên hệ & Hỗ trợ
-
-**Đội ngũ Phát triển xCB**  
-Email: support@xcb.local  
-Website: [https://xcb.local](https://xcb.local)
-
-© 2026 xCB - Nền tảng AI Công chức Việt Nam.
+## 🤝 Liên hệ & Đóng góp
+Dự án được phát triển bởi đội ngũ công nghệ vì sự nghiệp hiện đại hóa nền hành chính công Việt Nam.
+- **Đơn vị**: x-OR Cloud
+- **Phiên bản**: 2.0.0 (xCB Edition)

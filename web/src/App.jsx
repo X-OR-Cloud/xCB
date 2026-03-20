@@ -151,60 +151,106 @@ const DashboardHC = ({ stats, riskData }) => (
 
     {/* Middle Row: Vietnam Map & AI Insights */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Vietnam Map */}
+      {/* AI Performance Chart */}
       <div className="lg:col-span-8 glass-card p-8 bg-[#121212]/40 relative overflow-hidden group">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-xl font-black text-white neon-text-cyan flex items-center gap-3">
-              <Globe className="text-[var(--neon-cyan)] animate-pulse" size={20} />
-              Bản đồ Hiệu suất Hành chính Công Địa Phương
+              <TrendingUp className="text-[var(--neon-cyan)]" size={20} />
+              Biểu đồ Hiệu suất Hỗ trợ AI
             </h3>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Phân tích theo địa bàn quản lý xCB</p>
+            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">Năng suất xử lý nghiệp vụ theo thời gian & Agent</p>
+          </div>
+          <div className="flex gap-2">
+            {['Ngày', 'Tháng', 'Năm'].map(p => (
+              <button key={p} className={`px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border transition-all ${p === 'Tháng' ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400' : 'border-white/5 text-slate-500 hover:border-white/20'}`}>
+                {p}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="h-[450px] w-full bg-black/60 rounded-[2.5rem] relative overflow-hidden border border-white/5 perspective-1000">
-           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, var(--neon-cyan) 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-           <motion.div 
-             initial={{ rotateX: 20, y: 50, opacity: 0 }}
-             animate={{ rotateX: 10, y: 0, opacity: 1 }}
-             transition={{ duration: 1.5, ease: "easeOut" }}
-             className="absolute inset-0 flex items-center justify-center p-12"
-           >
-             <svg viewBox="0 0 1000 500" className="w-full h-auto drop-shadow-[0_0_20px_rgba(0,242,255,0.2)]">
-                {/* Simplified VN Map Placeholder */}
-                <path d="M500,50 L520,100 L510,200 L530,300 L500,450 L480,300 L490,200 L480,100 Z" 
-                  fill="rgba(0, 242, 255, 0.1)" 
-                  stroke="rgba(0, 242, 255, 0.8)" 
+        <div className="h-[450px] w-full bg-black/40 rounded-[2.5rem] p-10 flex flex-col justify-between border border-white/5 relative">
+           <div className="flex-1 flex items-end gap-4 mb-8 relative">
+              {/* Line Chart Overlay (Total Tasks) */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" preserveAspectRatio="none">
+                <motion.path
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
+                  d={`M ${[
+                    { val: 852, total: 1202 }, { val: 641, total: 1400 }, { val: 1420, total: 1650 }, 
+                    { val: 453, total: 1490 }, { val: 742, total: 1100 }, { val: 561, total: 1000 }, 
+                    { val: 1854, total: 1980 }, { val: 921, total: 1350 }, { val: 618, total: 850 }
+                  ].map((d, i) => `${(i * 11.1) + 5.5}% ${(1 - (d.total / 2000)) * 100}%`).join(' L ')}`}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.2)"
                   strokeWidth="2"
+                  strokeDasharray="4 4"
                 />
-             </svg>
+                {[
+                  { val: 852, total: 1202 }, { val: 641, total: 1400 }, { val: 1420, total: 1650 }, 
+                  { val: 453, total: 1490 }, { val: 742, total: 1100 }, { val: 561, total: 1000 }, 
+                  { val: 1854, total: 1980 }, { val: 921, total: 1350 }, { val: 618, total: 850 }
+                ].map((d, i) => (
+                  <circle 
+                    key={i} 
+                    cx={`${(i * 11.1) + 5.5}%`} 
+                    cy={`${(1 - (d.total / 2000)) * 100}%`} 
+                    r="3" 
+                    fill="white" 
+                    className="opacity-40"
+                  />
+                ))}
+              </svg>
 
-             {/* Region Pins */}
-             <div className="absolute top-[20%] left-[51%] group/pin">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg">
-                   <p className="text-[10px] font-black text-cyan-400">KHU VỰC MIỀN BẮC</p>
-                   <p className="text-[8px] text-white">96% Hồ sơ đúng hạn</p>
+              {[
+                { label: 'PL', val: 852, total: 1202, max: 2000, color: 'cyan' },
+                { label: 'GD', val: 641, total: 1400, max: 2000, color: 'blue' },
+                { label: 'BH', val: 1420, total: 1650, max: 2000, color: 'purple' },
+                { label: 'TN', val: 453, total: 1490, max: 2000, color: 'cyan' },
+                { label: 'NN', val: 742, total: 1100, max: 2000, color: 'blue' },
+                { label: 'CN', val: 561, total: 1000, max: 2000, color: 'purple' },
+                { label: 'HC', val: 1854, total: 1980, max: 2000, color: 'cyan' },
+                { label: 'DN', val: 921, total: 1350, max: 2000, color: 'blue' },
+                { label: 'GM', val: 618, total: 850, max: 2000, color: 'purple' },
+              ].map((item, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-4 h-full group z-0">
+                  <div className="flex-1 w-full bg-white/[0.02] rounded-2xl relative flex items-end justify-center border border-white/5 group-hover:border-cyan-500/30 transition-all">
+                    <motion.div 
+                      initial={{ height: 0 }}
+                      animate={{ height: `${(item.val / item.max) * 100}%` }}
+                      transition={{ delay: i * 0.1, duration: 1 }}
+                      className={`w-full bg-gradient-to-t rounded-t-xl ${
+                        item.color === 'cyan' ? 'from-cyan-600/40 to-cyan-400/60 shadow-[0_0_20px_rgba(0,242,255,0.2)]' :
+                        item.color === 'purple' ? 'from-purple-600/40 to-purple-400/60 shadow-[0_0_20px_rgba(188,19,254,0.2)]' :
+                        'from-blue-600/40 to-blue-400/60 shadow-[0_0_20px_rgba(37,99,235,0.2)]'
+                      }`}
+                    />
+                    <div className="absolute top-4 opacity-0 group-hover:opacity-100 transition-opacity text-[8px] font-black text-white whitespace-nowrap bg-black/80 px-2 py-1 rounded border border-white/10 z-20">
+                      AI: {item.val} | Tổng: {item.total}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 group-hover:text-cyan-400 transition-colors uppercase tracking-widest">{item.label}</span>
                 </div>
-             </div>
-             
-             <div className="absolute top-[45%] left-[52%] group/pin">
-                <div className="w-2 h-2 bg-purple-500 rounded-full shadow-[0_0_15px_#bc13fe] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-purple-500/30 p-2 rounded-lg">
-                   <p className="text-[10px] font-black text-purple-400">KHU VỰC MIỀN TRUNG</p>
-                   <p className="text-[8px] text-white">92% Hồ sơ đúng hạn</p>
+              ))}
+           </div>
+           
+           <div className="h-px w-full bg-white/5 mb-6" />
+           
+           <div className="flex justify-between items-center">
+              <div className="flex gap-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_10px_#00f2ff]" />
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">AI Xử lý</span>
                 </div>
-             </div>
-
-             <div className="absolute top-[75%] left-[50%] group/pin">
-                <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_15px_#00f2ff] relative z-10" />
-                <div className="absolute top-0 left-4 opacity-0 group-hover/pin:opacity-100 transition-all whitespace-nowrap bg-black/80 backdrop-blur-md border border-cyan-500/30 p-2 rounded-lg">
-                   <p className="text-[10px] font-black text-cyan-400">KHU VỰC MIỀN NAM</p>
-                   <p className="text-[8px] text-white">95% Hồ sơ đúng hạn</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-0.5 border-t border-dashed border-white/40" />
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Tổng nhiệm vụ</span>
                 </div>
-             </div>
-           </motion.div>
+              </div>
+              <p className="text-[9px] font-bold text-slate-600 uppercase tracking-wide">Cập nhật: 10 giây trước • xAI-Insight</p>
+           </div>
         </div>
       </div>
 
@@ -246,22 +292,51 @@ const DashboardHC = ({ stats, riskData }) => (
              <h3 className="text-lg font-bold text-white uppercase tracking-wider">Phân tích hồ sơ theo lĩnh vực</h3>
              <span className="text-[10px] font-bold text-slate-500">6 THÁNG GẦN NHẤT</span>
           </div>
-          <div className="h-48 flex items-end gap-6">
-             {riskData.map((item, i) => (
-               <div key={i} className="flex-1 flex flex-col items-center gap-3 group h-full">
-                 <div className="w-full bg-cyan-600/10 rounded-t-xl relative flex items-end justify-center overflow-hidden h-full">
-                    <motion.div 
-                     initial={{ height: 0 }}
-                     animate={{ height: `${item.risk * 2.5}%` }}
-                     className="w-full bg-gradient-to-t from-cyan-600 to-cyan-400 rounded-t-xl"
-                    />
-                 </div>
-                 <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter text-center whitespace-nowrap">{item.dept}</span>
-               </div>
-             ))}
-          </div>
-       </div>
-    </div>
+           <div className="h-64 w-full bg-black/20 rounded-[2.5rem] p-8 relative overflow-hidden border border-white/5 mt-4">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+                <motion.path
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
+                  d={`M ${riskData.map((d, i) => `${(i * (100 / (riskData.length - 1)))}% ${(1 - (d.risk / 100)) * 100}%`).join(' L ')}`}
+                  fill="none"
+                  stroke="url(#neonGradient)"
+                  strokeWidth="3"
+                />
+                <defs>
+                  <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#00f2ff" />
+                    <stop offset="50%" stopColor="#bc13fe" />
+                    <stop offset="100%" stopColor="#00f2ff" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              <div className="absolute inset-0 flex justify-between px-8">
+                {riskData.map((item, i) => (
+                  <div key={i} className="flex flex-col items-center justify-between h-full group z-10">
+                    <div className="relative h-full flex flex-col items-center w-8">
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: i * 0.1 }}
+                        className="w-3 h-3 rounded-full bg-white shadow-[0_0_15px_#fff] border-2 border-cyan-500 cursor-pointer group-hover:scale-125 transition-all absolute"
+                        style={{ top: `${(1 - (item.risk / 100)) * 100}%` }}
+                      />
+                      <div 
+                        className="absolute opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 backdrop-blur-md border border-white/10 px-2 py-1 rounded text-[10px] font-black text-white whitespace-nowrap z-20"
+                        style={{ top: `${(1 - (item.risk / 100)) * 100 - 15}%` }}
+                      >
+                        {item.risk} hồ sơ
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 group-hover:text-cyan-400 transition-colors uppercase tracking-widest mt-auto pb-4">{item.dept.substring(0, 2)}</span>
+                  </div>
+                ))}
+              </div>
+           </div>
+        </div>
+     </div>
   </motion.div>
 );
 
@@ -271,19 +346,19 @@ const DataManager = ({ onUpload }) => {
   
   // Mock data for storage and monthly usage
   const storageStats = {
-    total: 12.5, // TB
-    used: 4.8,   // TB
-    percentage: 38.4,
-    monthlyUsage: [0.8, 1.2, 0.9, 1.5, 2.1, 1.8], // TB per month for last 6 months
-    months: ['T10', 'T11', 'T12', 'T1', 'T2', 'T3']
+    total: 15.0, // TB
+    used: 5.2,   // TB
+    percentage: 34.6,
+    monthlyUsage: [0.9, 1.4, 1.1, 1.8, 2.4, 2.1], // TB per month for last 6 months
+    months: ['T10', 'T11', 'T12', 'T01', 'T02', '03']
   };
 
   // Mock data for processing queue
   const mockFiles = [
-    { ten_file: "HOP_DONG_LD_2024_V1.pdf", dung_luong: 4500, tien_do_ocr: 100, tien_do_vector: 85, status: 'processing' },
-    { ten_file: "BANG_DIEM_K25_MARCH.xlsx", dung_luong: 2100, tien_do_ocr: 100, tien_do_vector: 100, status: 'completed' },
-    { ten_file: "SCAN_HOSO_THUYENVIEN_001.jpg", dung_luong: 12000, tien_do_ocr: 45, tien_do_vector: 0, status: 'ocr_scanning' },
-    { ten_file: "CHINH_SACH_BAOHIEM_NHATBAN.pdf", dung_luong: 8500, tien_do_ocr: 0, tien_do_vector: 0, status: 'queued' }
+    { ten_file: "NGHI_DINH_123_2024_CHINH_PHU.pdf", dung_luong: 4500, tien_do_ocr: 100, tien_do_vector: 100, status: 'completed' },
+    { ten_file: "HO_SO_CAP_PHEP_XD_PHUONG_1.docx", dung_luong: 2100, tien_do_ocr: 100, tien_do_vector: 85, status: 'processing' },
+    { ten_file: "SCAN_DON_XIN_GIA_HAN_DAT_02.jpg", dung_luong: 12500, tien_do_ocr: 65, tien_do_vector: 0, status: 'ocr_scanning' },
+    { ten_file: "QUYET_DINH_PHAN_CAP_QUYEN_HAN.pdf", dung_luong: 8500, tien_do_ocr: 0, tien_do_vector: 0, status: 'queued' }
   ];
 
   const handleFileChange = (e) => {
@@ -339,10 +414,10 @@ const DataManager = ({ onUpload }) => {
              </div>
              <div className="px-3 py-1 bg-white/5 rounded-lg text-slate-500 text-[10px] font-bold">+24% so với năm ngoái</div>
           </div>
-          <div className="h-24 flex items-end gap-4">
+          <div className="h-48 flex items-end gap-4">
             {storageStats.monthlyUsage.map((val, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                <div className="w-full bg-blue-600/10 rounded-t-lg relative flex items-end justify-center overflow-hidden">
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 group h-full">
+                <div className="w-full h-full bg-blue-600/10 rounded-t-lg relative flex items-end justify-center overflow-hidden">
                    <motion.div 
                     initial={{ height: 0 }}
                     animate={{ height: `${(val / 2.5) * 100}%` }}
@@ -379,7 +454,7 @@ const DataManager = ({ onUpload }) => {
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Đường dẫn đồng bộ hiện tại</p>
-                <p className="text-sm font-bold text-blue-500 font-mono">C:/Users/HR/Documents/Scanning</p>
+                <p className="text-sm font-bold text-blue-500 font-mono">/Users/XCB/Documents/Administrative_Docs</p>
               </div>
             </div>
             <button className="px-4 py-2 text-[10px] font-black text-slate-400 border border-white/10 rounded-xl hover:bg-white/5 transition-all">
@@ -496,6 +571,46 @@ const KnowledgeBase = () => {
             <h3 className="text-3xl font-black text-white">12</h3>
             <span className="text-[10px] font-bold text-blue-500 uppercase">3 Đang chạy</span>
           </div>
+        </div>
+      </div>
+
+      {/* Knowledge Distribution Chart */}
+      <div className="glass-card p-8 bg-blue-500/[0.02]">
+        <div className="flex justify-between items-center mb-10">
+          <div>
+            <h3 className="text-xl font-bold text-white uppercase tracking-wider mb-2">Thống kê Tri thức theo Lĩnh vực</h3>
+            <p className="text-xs text-slate-500">Phân bổ tài liệu nghiệp vụ phục vụ xAI-Agents</p>
+          </div>
+          <span className="px-4 py-2 bg-blue-600/10 text-blue-500 rounded-xl text-[10px] font-black tracking-widest uppercase">Cập nhật theo thời gian thực</span>
+        </div>
+
+        <div className="space-y-6">
+           {[
+             { label: 'Hành chính Công', docs: 3100, color: '#3b82f6' },
+             { label: 'Pháp lý - Luật', docs: 2450, color: '#06b6d4' },
+             { label: 'Bảo hiểm XH', docs: 1820, color: '#10b981' },
+             { label: 'Tài nguyên & Đất đai', docs: 1640, color: '#14b8a6' },
+             { label: 'Doanh nghiệp', docs: 1250, color: '#6366f1' },
+             { label: 'Giáo dục', docs: 980, color: '#f59e0b' },
+             { label: 'Công nghiệp', docs: 890, color: '#ec4899' },
+             { label: 'Nông nghiệp', docs: 720, color: '#84cc16' }
+           ].map((item, i) => (
+             <div key={i} className="space-y-2 group">
+               <div className="flex justify-between items-end">
+                 <span className="text-xs font-bold text-slate-400 group-hover:text-white transition-colors">{item.label}</span>
+                 <span className="text-xs font-black text-white">{item.docs.toLocaleString()} <span className="text-[10px] font-normal text-slate-500">tài liệu</span></span>
+               </div>
+               <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                 <motion.div 
+                   initial={{ width: 0 }}
+                   animate={{ width: `${(item.docs / 3100) * 100}%` }}
+                   transition={{ delay: i * 0.1, duration: 1 }}
+                   style={{ backgroundColor: item.color }}
+                   className="h-full rounded-full shadow-[0_0_15px_rgba(0,0,0,0.3)] group-hover:brightness-125 transition-all"
+                 />
+               </div>
+             </div>
+           ))}
         </div>
       </div>
 
@@ -729,8 +844,23 @@ const API_BASE = 'http://localhost:8000/api';
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeAgentId, setActiveAgentId] = useState(null);
-  const [dashboardStats, setDashboardStats] = useState({});
-  const [riskData, setRiskData] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState({
+    ho_so_tiep_nhan: "1,452",
+    ti_le_dung_han: "96.5%",
+    dang_cho: "124",
+    qua_han: "12"
+  });
+  const [riskData, setRiskData] = useState([
+    { dept: 'Pháp lý', risk: 65 },
+    { dept: 'Giáo dục', risk: 45 },
+    { dept: 'Bảo hiểm', risk: 85 },
+    { dept: 'Tài nguyên', risk: 30 },
+    { dept: 'Nông nghiệp', risk: 70 },
+    { dept: 'Công nghiệp', risk: 55 },
+    { dept: 'Hành chính', risk: 95 },
+    { dept: 'Doanh nghiệp', risk: 80 },
+    { dept: 'Giám sát', risk: 60 },
+  ]);
   const [files, setFiles] = useState([]);
   const [collections, setCollections] = useState([]);
   const [isDark, setIsDark] = useState(() => {
