@@ -1,5 +1,7 @@
 """
-src/skills/lanh_dao/skills.py — Skills cho MOLTY-CEO (Lãnh đạo / TGĐ)
+src/skills/lanh_dao/skills.py — Skills cho xAI-GM (Giám sát / Lãnh đạo)
+Lưu ý: Các skill gốc từ xHR (HopDong, LaoDong, PhiVaThanhToan, TrinhKy, etc.)
+đã được thay thế bằng stub. Hệ thống xCB sử dụng CanBo và HoSoHanhChinh.
 """
 from datetime import date, timedelta
 
@@ -8,96 +10,74 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.models import (
-    AuditLog, HopDong, LaoDong, NhanVien,
-    PhiVaThanhToan, TinhTrangHopDong, TinhTrangLaoDong,
-    TinhTrangThanhToan, TrinhKy, TinhTrangTrinhKy,
+    AuditLog, CanBo, HoSoHanhChinh, TrangThaiHoSo,
 )
 
 log = structlog.get_logger(__name__)
 
 
-async def dashboard_tong_hop(message: str, nhan_vien: NhanVien, db: AsyncSession) -> str:
-    """Dashboard tổng hợp toàn công ty."""
-    # Lao động
-    tong_ld = await db.scalar(select(func.count(LaoDong.id))) or 0
-    dang_xl = await db.scalar(
-        select(func.count(LaoDong.id)).where(LaoDong.tinh_trang == TinhTrangLaoDong.dang_xu_ly)
-    ) or 0
-    da_xuat = await db.scalar(
-        select(func.count(LaoDong.id)).where(LaoDong.tinh_trang == TinhTrangLaoDong.da_xuat_canh)
+async def dashboard_tong_hop(message: str, nhan_vien: CanBo, db: AsyncSession) -> str:
+    """Dashboard tổng hợp cho lãnh đạo — dựa trên dữ liệu xCB."""
+    # Cán bộ
+    tong_cb = await db.scalar(
+        select(func.count(CanBo.id)).where(CanBo.dang_cong_tac.is_(True))
     ) or 0
 
-    # Nhân viên
-    tong_nv = await db.scalar(
-        select(func.count(NhanVien.id)).where(NhanVien.dang_lam_viec.is_(True))
-    ) or 0
-
-    # Hợp đồng hiệu lực
-    tong_hd = await db.scalar(
-        select(func.count(HopDong.id)).where(HopDong.tinh_trang == TinhTrangHopDong.hieu_luc)
-    ) or 0
-
-    # Phí chưa thu
-    tong_phi_chua_thu = await db.scalar(
-        select(func.coalesce(func.sum(PhiVaThanhToan.so_tien), 0)).where(
-            PhiVaThanhToan.tinh_trang == TinhTrangThanhToan.chua_thanh_toan
+    # Hồ sơ hành chính
+    tong_hs = await db.scalar(select(func.count(HoSoHanhChinh.id))) or 0
+    dang_xu_ly = await db.scalar(
+        select(func.count(HoSoHanhChinh.id)).where(
+            HoSoHanhChinh.trang_thai == TrangThaiHoSo.dang_xu_ly
         )
     ) or 0
-
-    # Trình ký chờ duyệt
-    cho_duyet = await db.scalar(
-        select(func.count(TrinhKy.id)).where(TrinhKy.tinh_trang == TinhTrangTrinhKy.cho_duyet)
+    hoan_thanh = await db.scalar(
+        select(func.count(HoSoHanhChinh.id)).where(
+            HoSoHanhChinh.trang_thai == TrangThaiHoSo.hoan_thanh
+        )
+    ) or 0
+    qua_han = await db.scalar(
+        select(func.count(HoSoHanhChinh.id)).where(
+            HoSoHanhChinh.trang_thai == TrangThaiHoSo.qua_han
+        )
     ) or 0
 
     return (
-        f"📊 *DASHBOARD TỔNG HỢP — THINH LONG GROUP*\n"
+        f"📊 *DASHBOARD TỔNG HỢP — xCB*\n"
         f"📅 Ngày: {date.today().strftime('%d/%m/%Y')}\n"
         f"{'─' * 35}\n\n"
-        f"👷 *Lao động xuất khẩu*\n"
-        f"  • Tổng hồ sơ: *{tong_ld}*\n"
-        f"  • Đã xuất cảnh: *{da_xuat}*\n"
-        f"  • Đang xử lý: *{dang_xl}*\n\n"
-        f"👥 *Nhân sự nội bộ:* {tong_nv} nhân viên\n\n"
-        f"📋 *Hợp đồng hiệu lực:* {tong_hd}\n\n"
-        f"💰 *Phí chưa thu:* {tong_phi_chua_thu:,.0f} VND\n\n"
-        f"📝 *Trình ký chờ duyệt:* {cho_duyet} văn bản"
+        f"👥 *Cán bộ đang công tác:* {tong_cb}\n\n"
+        f"📋 *Hồ sơ hành chính*\n"
+        f"  • Tổng hồ sơ: *{tong_hs}*\n"
+        f"  • Đang xử lý: *{dang_xu_ly}*\n"
+        f"  • Hoàn thành: *{hoan_thanh}*\n"
+        f"  • Quá hạn: *{qua_han}*"
     )
 
 
-async def canh_bao_rui_ro(message: str, nhan_vien: NhanVien, db: AsyncSession) -> str:
-    """Tổng hợp cảnh báo rủi ro."""
+async def canh_bao_rui_ro(message: str, nhan_vien: CanBo, db: AsyncSession) -> str:
+    """Tổng hợp cảnh báo rủi ro — dựa trên hồ sơ quá hạn."""
     today = date.today()
     warnings = []
 
-    # HĐ sắp hết hạn 30 ngày
-    hd_het_han = await db.scalar(
-        select(func.count(HopDong.id)).where(
-            HopDong.tinh_trang == TinhTrangHopDong.hieu_luc,
-            HopDong.ngay_het_han <= today + timedelta(days=30),
-            HopDong.ngay_het_han >= today,
+    # Hồ sơ quá hạn
+    hs_qua_han = await db.scalar(
+        select(func.count(HoSoHanhChinh.id)).where(
+            HoSoHanhChinh.trang_thai == TrangThaiHoSo.qua_han
         )
     ) or 0
-    if hd_het_han:
-        warnings.append(f"⚠️ *{hd_het_han} hợp đồng* hết hạn trong 30 ngày")
+    if hs_qua_han:
+        warnings.append(f"🔴 *{hs_qua_han} hồ sơ* đã quá hạn xử lý")
 
-    # Phi quá hạn
-    phi_qua_han = await db.scalar(
-        select(func.count(PhiVaThanhToan.id)).where(
-            PhiVaThanhToan.tinh_trang == TinhTrangThanhToan.qua_han
+    # Hồ sơ sắp hết hạn (trong 3 ngày)
+    hs_sap_het_han = await db.scalar(
+        select(func.count(HoSoHanhChinh.id)).where(
+            HoSoHanhChinh.trang_thai == TrangThaiHoSo.dang_xu_ly,
+            HoSoHanhChinh.han_tra_ket_qua <= today + timedelta(days=3),
+            HoSoHanhChinh.han_tra_ket_qua >= today,
         )
     ) or 0
-    if phi_qua_han:
-        warnings.append(f"🔴 *{phi_qua_han} khoản phí* quá hạn chưa thu")
-
-    # Trình ký quá hạn
-    tk_qua_han = await db.scalar(
-        select(func.count(TrinhKy.id)).where(
-            TrinhKy.tinh_trang == TinhTrangTrinhKy.cho_duyet,
-            TrinhKy.han_duyet < today,
-        )
-    ) or 0
-    if tk_qua_han:
-        warnings.append(f"🔴 *{tk_qua_han} văn bản trình ký* đã quá hạn duyệt")
+    if hs_sap_het_han:
+        warnings.append(f"⚠️ *{hs_sap_het_han} hồ sơ* sắp hết hạn trong 3 ngày")
 
     if not warnings:
         return "✅ *Không có cảnh báo rủi ro nào. Mọi thứ đang trong tầm kiểm soát.*"
@@ -107,48 +87,17 @@ async def canh_bao_rui_ro(message: str, nhan_vien: NhanVien, db: AsyncSession) -
     return "\n".join(lines)
 
 
-async def bao_cao_tai_chinh(message: str, nhan_vien: NhanVien, db: AsyncSession) -> str:
-    """Báo cáo tài chính tổng hợp."""
-    from src.database.models import LoaiPhi
-
-    # Tổng phí cần thu
-    tong_can_thu = await db.scalar(
-        select(func.coalesce(func.sum(PhiVaThanhToan.so_tien), 0))
-    ) or 0
-
-    # Đã thu
-    da_thu = await db.scalar(
-        select(func.coalesce(func.sum(PhiVaThanhToan.so_tien), 0)).where(
-            PhiVaThanhToan.tinh_trang == TinhTrangThanhToan.da_thanh_toan
-        )
-    ) or 0
-
-    chua_thu = float(tong_can_thu) - float(da_thu)
-    ty_le = (float(da_thu) / float(tong_can_thu) * 100) if tong_can_thu else 0
-
+async def bao_cao_tai_chinh(message: str, nhan_vien: CanBo, db: AsyncSession) -> str:
+    """Stub — Tính năng báo cáo tài chính chưa được triển khai cho xCB."""
     return (
-        f"💰 *BÁO CÁO TÀI CHÍNH*\n"
-        f"{'─' * 30}\n\n"
-        f"• Tổng phí phải thu: *{float(tong_can_thu):,.0f} VND*\n"
-        f"• Đã thu: *{float(da_thu):,.0f} VND* ({ty_le:.1f}%)\n"
-        f"• Chưa thu: *{chua_thu:,.0f} VND*\n\n"
-        f"📈 Tỷ lệ thu: *{ty_le:.1f}%*"
+        "💰 Tính năng báo cáo tài chính đang được phát triển cho hệ thống xCB.\n"
+        "Vui lòng liên hệ quản trị viên để biết thêm chi tiết."
     )
 
 
-async def tinh_hinh_xuat_khau(message: str, nhan_vien: NhanVien, db: AsyncSession) -> str:
-    """Tình hình xuất khẩu lao động theo thị trường."""
-    result = await db.execute(
-        select(LaoDong.thi_truong, func.count(LaoDong.id).label("so_luong"))
-        .group_by(LaoDong.thi_truong)
-        .order_by(func.count(LaoDong.id).desc())
+async def tinh_hinh_xuat_khau(message: str, nhan_vien: CanBo, db: AsyncSession) -> str:
+    """Stub — Tính năng xuất khẩu lao động chưa được triển khai cho xCB."""
+    return (
+        "✈️ Tính năng báo cáo xuất khẩu lao động đang được phát triển cho hệ thống xCB.\n"
+        "Vui lòng liên hệ quản trị viên để biết thêm chi tiết."
     )
-    rows = result.all()
-
-    tong = sum(r.so_luong for r in rows)
-    lines = [f"✈️ *TÌNH HÌNH XUẤT KHẨU LAO ĐỘNG*\n📅 {date.today().strftime('%d/%m/%Y')}\n"]
-    for r in rows:
-        pct = (r.so_luong / tong * 100) if tong else 0
-        lines.append(f"• 🌏 *{r.thi_truong.upper()}*: {r.so_luong} người ({pct:.1f}%)")
-    lines.append(f"\n*Tổng cộng: {tong} hồ sơ*")
-    return "\n".join(lines)

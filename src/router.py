@@ -84,18 +84,18 @@ async def route_update(update: dict, db: AsyncSession) -> None:
         )
         return
 
-    if not nhan_vien.dang_lam_viec:
+    if not nhan_vien.dang_cong_tac:
         await send_message(chat_id, "⚠️ Tài khoản của bạn đã bị vô hiệu hoá.")
         return
 
-    agent = _agents.get(nhan_vien.phong_ban, _agents_by_id["hc"])
+    agent = _agents.get(nhan_vien.linh_vuc, _agents_by_id["hc"])
     await send_typing_action(chat_id)
 
     log.info(
         "routing",
         agent=agent.AGENT_ID,
         nhan_vien=nhan_vien.ho_ten,
-        phong_ban=nhan_vien.phong_ban.value,
+        phong_ban=nhan_vien.linh_vuc.value,
         text_snippet=text[:80],
     )
 

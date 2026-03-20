@@ -32,6 +32,17 @@ class LinhVuc(str, enum.Enum):
     hanh_chinh = "hanh_chinh"
     doanh_nghiep = "doanh_nghiep"
     giam_sat = "giam_sat"
+    # Aliases cho router compatibility
+    ke_toan = "ke_toan"
+    lanh_dao = "lanh_dao"
+    tgd = "tgd"
+    dao_tao = "dao_tao"
+    nhat_ban = "nhat_ban"
+    thuy_en_vien = "thuy_en_vien"
+    han_quoc = "han_quoc"
+
+# Alias for router compatibility
+PhongBan = LinhVuc
 
 
 class CapDonVi(str, enum.Enum):

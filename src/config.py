@@ -56,6 +56,12 @@ class Settings(BaseSettings):
     # Redis (Caching)
     redis_url: str = "redis://redis:6379/0"
 
+    # OpenAI-compatible source (X-OR Cloud hoặc bất kỳ OpenAI-compatible API)
+    openai_source: bool = False
+    openai_api_base: str | None = None
+    openai_api_key: str | None = None
+    openai_model: str | None = None
+
     # Security
     admin_api_key: str | None = None  # Bắt buộc set trong production
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]

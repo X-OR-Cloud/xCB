@@ -1,5 +1,7 @@
 """
-src/scheduler.py — APScheduler: các tác vụ tự động (điểm danh, nhắc nhở, báo cáo)
+src/scheduler.py — APScheduler: các tác vụ tự động (nhắc nhở, báo cáo)
+Lưu ý: Các job gốc từ xHR phụ thuộc vào NhanVien, HopDong, LaoDong, TrinhKy, etc.
+đã được stub/comment out. Chỉ giữ lại các job tương thích với xCB (CanBo, HoSoHanhChinh).
 """
 from datetime import date, timedelta
 
@@ -10,13 +12,9 @@ from sqlalchemy import func, select
 
 from src.database.session import AsyncSessionLocal
 from src.database.models import (
-    HopDong, HoSoPhapLy, LaoDong, LoaiGiayTo, NhanVien,
-    PhiVaThanhToan, TinhTrangHopDong, TinhTrangThanhToan,
-    TinhTrangTrinhKy, TrinhKy, PhongBan,
+    CanBo, HoSoHanhChinh, TrangThaiHoSo, PhongBan,
 )
 from src.integrations.telegram_bot import send_message
-from src.integrations.email_service import send_email
-from src.integrations.claude_client import ask_claude
 
 log = structlog.get_logger(__name__)
 
@@ -26,207 +24,128 @@ scheduler = AsyncIOScheduler(timezone=VN_TIMEZONE)
 
 # ─── Helpers ─────────────────────────────────────────────────────────
 
-async def _get_nv_with_telegram(phong_ban: PhongBan | None = None) -> list[NhanVien]:
-    """Lấy danh sách nhân viên có telegram_user_id."""
+async def _get_cb_with_telegram(linh_vuc: PhongBan | None = None) -> list[CanBo]:
+    """Lấy danh sách cán bộ có telegram_user_id."""
     async with AsyncSessionLocal() as db:
-        query = select(NhanVien).where(
-            NhanVien.dang_lam_viec.is_(True),
-            NhanVien.telegram_user_id.isnot(None),
+        query = select(CanBo).where(
+            CanBo.dang_cong_tac.is_(True),
+            CanBo.telegram_user_id.isnot(None),
         )
-        if phong_ban:
-            query = query.where(NhanVien.phong_ban == phong_ban)
+        if linh_vuc:
+            query = query.where(CanBo.linh_vuc == linh_vuc)
         result = await db.execute(query)
         return result.scalars().all()
 
 
-async def _broadcast(nhan_viens: list[NhanVien], message: str) -> None:
-    """Gửi message đến nhiều nhân viên."""
-    for nv in nhan_viens:
+async def _broadcast(can_bos: list[CanBo], message: str) -> None:
+    """Gửi message đến nhiều cán bộ."""
+    for cb in can_bos:
         try:
-            await send_message(nv.telegram_user_id, message)
+            await send_message(cb.telegram_user_id, message)
         except Exception as exc:
-            log.error("broadcast_error", nhan_vien=nv.ho_ten, error=str(exc))
+            log.error("broadcast_error", can_bo=cb.ho_ten, error=str(exc))
 
 
 # ─── Job handlers ─────────────────────────────────────────────────────
 
 async def job_diem_danh(session_label: str) -> None:
-    """Nhắc điểm danh học viên (6:15, 8:15, 13:15, 19:45)."""
+    """Nhắc điểm danh (6:15, 8:15, 13:15, 19:45)."""
     log.info("job_diem_danh", session=session_label)
-    nv_dao_tao = await _get_nv_with_telegram(PhongBan.dao_tao)
+    cb_dao_tao = await _get_cb_with_telegram(PhongBan.dao_tao)
     msg = (
         f"📋 *Nhắc điểm danh — {session_label}*\n"
-        f"Vui lòng cập nhật điểm danh học viên cho buổi này.\n"
+        f"Vui lòng cập nhật điểm danh cho buổi này.\n"
         f"Gõ: `điểm danh` để xem danh sách."
     )
-    await _broadcast(nv_dao_tao, msg)
+    await _broadcast(cb_dao_tao, msg)
 
 
 async def job_bao_cao_tuan() -> None:
     """Báo cáo tuần gửi mỗi thứ Sáu 16:00."""
     log.info("job_bao_cao_tuan")
     async with AsyncSessionLocal() as db:
-        tong_ld = await db.scalar(select(func.count(LaoDong.id))) or 0
-        tong_hd = await db.scalar(
-            select(func.count(HopDong.id)).where(HopDong.tinh_trang == TinhTrangHopDong.hieu_luc)
+        tong_hs = await db.scalar(select(func.count(HoSoHanhChinh.id))) or 0
+        dang_xu_ly = await db.scalar(
+            select(func.count(HoSoHanhChinh.id)).where(
+                HoSoHanhChinh.trang_thai == TrangThaiHoSo.dang_xu_ly
+            )
         ) or 0
-        cho_duyet = await db.scalar(
-            select(func.count(TrinhKy.id)).where(TrinhKy.tinh_trang == TinhTrangTrinhKy.cho_duyet)
+        qua_han = await db.scalar(
+            select(func.count(HoSoHanhChinh.id)).where(
+                HoSoHanhChinh.trang_thai == TrangThaiHoSo.qua_han
+            )
         ) or 0
 
     msg = (
         f"📊 *BÁO CÁO TUẦN — {date.today().strftime('%d/%m/%Y')}*\n"
         f"{'─' * 30}\n"
-        f"• Tổng hồ sơ lao động: *{tong_ld}*\n"
-        f"• Hợp đồng hiệu lực: *{tong_hd}*\n"
-        f"• Trình ký chờ duyệt: *{cho_duyet}*\n\n"
+        f"• Tổng hồ sơ hành chính: *{tong_hs}*\n"
+        f"• Đang xử lý: *{dang_xu_ly}*\n"
+        f"• Quá hạn: *{qua_han}*\n\n"
         f"Gõ `dashboard` để xem chi tiết đầy đủ."
     )
     # Gửi cho lãnh đạo
-    nv_lanh_dao = await _get_nv_with_telegram(PhongBan.lanh_dao)
-    nv_tgd = await _get_nv_with_telegram(PhongBan.tgd)
-    await _broadcast(nv_lanh_dao + nv_tgd, msg)
+    cb_lanh_dao = await _get_cb_with_telegram(PhongBan.lanh_dao)
+    cb_tgd = await _get_cb_with_telegram(PhongBan.tgd)
+    await _broadcast(cb_lanh_dao + cb_tgd, msg)
 
 
 async def job_nhac_bhxh() -> None:
     """Nhắc đóng BHXH ngày 20 hàng tháng lúc 9:00."""
     log.info("job_nhac_bhxh")
     async with AsyncSessionLocal() as db:
-        tong_nv = await db.scalar(
-            select(func.count(NhanVien.id)).where(NhanVien.dang_lam_viec.is_(True))
+        tong_cb = await db.scalar(
+            select(func.count(CanBo.id)).where(CanBo.dang_cong_tac.is_(True))
         ) or 0
 
     msg = (
         f"🏦 *NHẮC ĐÓNG BHXH THÁNG {date.today().month}*\n\n"
         f"Hạn đóng: *ngày 20/{date.today().month}/{date.today().year}*\n"
-        f"Tổng nhân viên cần đóng: *{tong_nv}*\n\n"
+        f"Tổng cán bộ cần đóng: *{tong_cb}*\n\n"
         f"Phòng Kế toán vui lòng chuẩn bị danh sách và chứng từ."
     )
-    nv_ke_toan = await _get_nv_with_telegram(PhongBan.ke_toan)
-    nv_hanh_chinh = await _get_nv_with_telegram(PhongBan.hanh_chinh)
-    await _broadcast(nv_ke_toan + nv_hanh_chinh, msg)
+    cb_ke_toan = await _get_cb_with_telegram(PhongBan.ke_toan)
+    cb_hanh_chinh = await _get_cb_with_telegram(PhongBan.hanh_chinh)
+    await _broadcast(cb_ke_toan + cb_hanh_chinh, msg)
 
 
-async def job_canh_bao_ho_chieu() -> None:
-    """Cảnh báo hộ chiếu sắp hết hạn (ngưỡng 90 ngày) lúc 7:00."""
-    log.info("job_canh_bao_ho_chieu")
-    threshold = date.today() + timedelta(days=90)
-
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(HoSoPhapLy, LaoDong)
-            .join(LaoDong, HoSoPhapLy.lao_dong_id == LaoDong.id)
-            .where(
-                HoSoPhapLy.loai_giay_to.in_([LoaiGiayTo.ho_chieu, LoaiGiayTo.visa]),
-                HoSoPhapLy.ngay_het_han <= threshold,
-                HoSoPhapLy.ngay_het_han >= date.today(),
-            )
-            .order_by(HoSoPhapLy.ngay_het_han.asc())
-            .limit(20)
-        )
-        rows = result.all()
-
-    if not rows:
-        return
-
-    lines = [f"⚠️ *CẢNH BÁO: {len(rows)} hộ chiếu/visa sắp hết hạn*\n"]
-    for doc, lao_dong in rows[:10]:
-        con_lai = (doc.ngay_het_han - date.today()).days
-        lines.append(
-            f"• *{lao_dong.ho_ten}* — {doc.loai_giay_to.value} "
-            f"hết hạn {doc.ngay_het_han} (còn {con_lai} ngày)"
-        )
-
-    msg = "\n".join(lines)
-    nv_nb = await _get_nv_with_telegram(PhongBan.nhat_ban)
-    nv_tv = await _get_nv_with_telegram(PhongBan.thuy_en_vien)
-    await _broadcast(nv_nb + nv_tv, msg)
+# NOTE: job_canh_bao_ho_chieu — disabled (requires HoSoPhapLy, LaoDong, LoaiGiayTo from xHR)
+# NOTE: job_canh_bao_hop_dong — disabled (requires HopDong, LaoDong from xHR)
+# NOTE: job_kiem_tra_trinh_ky — disabled (requires TrinhKy, NhanVien from xHR)
 
 
-async def job_canh_bao_hop_dong() -> None:
-    """Cảnh báo hợp đồng hết hạn trong 60 ngày lúc 7:30 và gửi email nhắc gia hạn."""
-    log.info("job_canh_bao_hop_dong")
-    threshold = date.today() + timedelta(days=60)
+async def job_canh_bao_ho_so_qua_han() -> None:
+    """Cảnh báo hồ sơ hành chính quá hạn hoặc sắp quá hạn — mỗi ngày 7:00."""
+    log.info("job_canh_bao_ho_so_qua_han")
+    today = date.today()
+    threshold = today + timedelta(days=3)
 
     async with AsyncSessionLocal() as db:
-        # Lấy danh sách hợp đồng kèm thông tin lao động (để lấy email)
-        result = await db.execute(
-            select(HopDong, LaoDong)
-            .join(LaoDong, HopDong.lao_dong_id == LaoDong.id)
-            .where(
-                HopDong.tinh_trang == TinhTrangHopDong.hieu_luc,
-                HopDong.ngay_het_han <= threshold,
-                HopDong.ngay_het_han >= date.today(),
+        qua_han = await db.scalar(
+            select(func.count(HoSoHanhChinh.id)).where(
+                HoSoHanhChinh.trang_thai == TrangThaiHoSo.qua_han
             )
-        )
-        rows = result.all()
+        ) or 0
+        sap_het_han = await db.scalar(
+            select(func.count(HoSoHanhChinh.id)).where(
+                HoSoHanhChinh.trang_thai == TrangThaiHoSo.dang_xu_ly,
+                HoSoHanhChinh.han_tra_ket_qua <= threshold,
+                HoSoHanhChinh.han_tra_ket_qua >= today,
+            )
+        ) or 0
 
-    if not rows:
+    if not qua_han and not sap_het_han:
         return
 
-    # 1. Thông báo cho phòng Hành chính qua Telegram
-    msg_hc = (
-        f"📋 *CẢNH BÁO: {len(rows)} hợp đồng sắp hết hạn*\n"
-        f"Trong vòng 60 ngày tới. Hệ thống đang tự động gửi email nhắc gia hạn cho học viên.\n"
-        f"Gõ `hợp đồng` để xem chi tiết."
+    msg = (
+        f"⚠️ *CẢNH BÁO HỒ SƠ — {today.strftime('%d/%m/%Y')}*\n\n"
+        f"• Hồ sơ quá hạn: *{qua_han}*\n"
+        f"• Sắp hết hạn (≤ 3 ngày): *{sap_het_han}*\n\n"
+        f"Vui lòng kiểm tra và xử lý kịp thời."
     )
-    nv_hc = await _get_nv_with_telegram(PhongBan.hanh_chinh)
-    await _broadcast(nv_hc, msg_hc)
-
-    # 2. Gửi email tự động cho từng học viên/lao động
-    for hd, ld in rows:
-        if not ld.email:
-            log.info("skip_email_no_address", ld=ld.ho_ten)
-            continue
-
-        # Dùng Claude soạn thảo nội dung email cá nhân hóa
-        prompt = (
-            f"Hãy viết một email chuyên nghiệp từ Thinh Long Group gửi cho học viên {ld.ho_ten}. "
-            f"Thông báo rằng hợp đồng số {hd.so_hop_dong} sẽ hết hạn vào ngày {hd.ngay_het_han}. "
-            f"Hướng dẫn học viên liên hệ phòng Hành chính để làm thủ tục gia hạn. "
-            f"Giọng văn: Lịch sự, hỗ trợ."
-        )
-        system = "Bạn là chuyên viên HR của Thinh Long Group, chuyên soạn thảo email chuyên nghiệp."
-        
-        try:
-            email_content = await ask_claude(system_prompt=system, user_message=prompt)
-            subject = f"[xHR] Thông báo nhắc gia hạn hợp đồng — {ld.ho_ten}"
-            
-            success = await send_email(ld.email, subject, email_content)
-            if success:
-                log.info("auto_renewal_email_success", ld=ld.ho_ten, email=ld.email)
-        except Exception as exc:
-            log.error("auto_renewal_email_error", ld=ld.ho_ten, error=str(exc))
-
-
-async def job_kiem_tra_trinh_ky() -> None:
-    """Kiểm tra và nhắc trình ký sắp quá hạn (mỗi 30 phút)."""
-    log.info("job_kiem_tra_trinh_ky")
-    tomorrow = date.today() + timedelta(days=1)
-
-    async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(TrinhKy, NhanVien)
-            .join(NhanVien, TrinhKy.nguoi_duyet_id == NhanVien.id)
-            .where(
-                TrinhKy.tinh_trang == TinhTrangTrinhKy.cho_duyet,
-                TrinhKy.han_duyet <= tomorrow,
-                NhanVien.telegram_user_id.isnot(None),
-            )
-        )
-        rows = result.all()
-
-    for tk, approver in rows:
-        msg = (
-            f"⏰ *Nhắc phê duyệt văn bản*\n\n"
-            f"📝 *{tk.ten_viec}*\n"
-            f"⚠️ Hạn duyệt: *{tk.han_duyet.strftime('%d/%m/%Y %H:%M') if tk.han_duyet else 'Hết hạn'}*\n\n"
-            f"Gõ `trình ký` để xem chi tiết."
-        )
-        try:
-            await send_message(approver.telegram_user_id, msg)
-        except Exception as exc:
-            log.error("trinh_ky_notify_error", approver=approver.ho_ten, error=str(exc))
+    cb_hanh_chinh = await _get_cb_with_telegram(PhongBan.hanh_chinh)
+    cb_lanh_dao = await _get_cb_with_telegram(PhongBan.lanh_dao)
+    await _broadcast(cb_hanh_chinh + cb_lanh_dao, msg)
 
 
 # ─── Setup scheduler ─────────────────────────────────────────────────
@@ -265,27 +184,11 @@ def setup_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
     )
 
-    # Cảnh báo hộ chiếu — mỗi ngày 7:00
+    # Cảnh báo hồ sơ quá hạn — mỗi ngày 7:00
     scheduler.add_job(
-        job_canh_bao_ho_chieu,
+        job_canh_bao_ho_so_qua_han,
         CronTrigger(hour=7, minute=0),
-        id="canh_bao_ho_chieu",
-        replace_existing=True,
-    )
-
-    # Cảnh báo hợp đồng — mỗi ngày 7:30
-    scheduler.add_job(
-        job_canh_bao_hop_dong,
-        CronTrigger(hour=7, minute=30),
-        id="canh_bao_hop_dong",
-        replace_existing=True,
-    )
-
-    # Kiểm tra trình ký — mỗi 30 phút
-    scheduler.add_job(
-        job_kiem_tra_trinh_ky,
-        CronTrigger(minute="*/30"),
-        id="kiem_tra_trinh_ky",
+        id="canh_bao_ho_so_qua_han",
         replace_existing=True,
     )
 

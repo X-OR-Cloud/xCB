@@ -3,11 +3,11 @@ src/skills/rag_base.py — Các hàm bổ trợ RAG (Retrieval-Augmented Generat
 """
 import structlog
 from src.integrations import qwen_client, qdrant_client
-from src.database.models import NhanVien
+from src.database.models import CanBo
 
 log = structlog.get_logger(__name__)
 
-async def search_knowledge_base(query: str, nhan_vien: NhanVien, limit: int = 3) -> str:
+async def search_knowledge_base(query: str, nhan_vien: CanBo, limit: int = 3) -> str:
     """
     Tìm kiếm thông tin từ kiến thức đã index trong Qdrant.
     Có thể lọc theo phòng ban để đảm bảo bảo mật dữ liệu.
@@ -19,8 +19,8 @@ async def search_knowledge_base(query: str, nhan_vien: NhanVien, limit: int = 3)
         # 2. Định nghĩa filter dựa trên quyền của nhân viên
         # Lãnh đạo / TGD có thể xem tất cả; các phòng ban khác chỉ xem tài liệu của mình
         filter_dict = {}
-        if nhan_vien.phong_ban.value not in ["lanh_dao", "tgd"]:
-            filter_dict["phong_ban"] = nhan_vien.phong_ban.value
+        if nhan_vien.linh_vuc.value not in ["lanh_dao", "tgd"]:
+            filter_dict["phong_ban"] = nhan_vien.linh_vuc.value
 
         # 3. Search Qdrant
         results = await qdrant_client.search_knowledge(

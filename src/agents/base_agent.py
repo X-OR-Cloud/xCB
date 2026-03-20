@@ -117,7 +117,7 @@ class BaseAgent(ABC):
             return await generate_rag_answer(self.SYSTEM_PROMPT, message, context)
 
         # 2. Nếu không có ngữ cảnh, fallback về Claude thông thường
-        system = self.SYSTEM_PROMPT + f"\n\nBạn đang hỗ trợ nhân viên: {nhan_vien.ho_ten} ({nhan_vien.phong_ban})."
+        system = self.SYSTEM_PROMPT + f"\n\nBạn đang hỗ trợ cán bộ: {nhan_vien.ho_ten} ({nhan_vien.linh_vuc.value})."
         return await claude_client.ask_claude(system_prompt=system, user_message=message)
 
     async def _audit(
@@ -133,7 +133,7 @@ class BaseAgent(ABC):
         try:
             entry = AuditLog(
                 agent_id=self.AGENT_ID,
-                nhan_vien_id=nhan_vien.id,
+                can_bo_id=nhan_vien.id,
                 telegram_user_id=nhan_vien.telegram_user_id,
                 hanh_dong=hanh_dong,
                 du_lieu_dau_vao=input_data[:2000],

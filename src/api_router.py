@@ -159,7 +159,7 @@ async def agent_chat(agent_id: str, message: str, db: AsyncSession = Depends(get
     from src.router import _agents_by_id
 
     result = await db.execute(
-        select(CanBo).where(CanBo.phong_ban == "hanh_chinh").limit(1)
+        select(CanBo).where(CanBo.linh_vuc == "hanh_chinh").limit(1)
     )
     nhan_vien = result.scalar_one_or_none()
 
@@ -168,7 +168,7 @@ async def agent_chat(agent_id: str, message: str, db: AsyncSession = Depends(get
         class MockCanBo:
             id = 0
             ho_ten = "Quản trị viên xCB"
-            phong_ban = "hanh_chinh"
+            linh_vuc = "hanh_chinh"
             telegram_user_id = 0
         nhan_vien = MockCanBo()
 

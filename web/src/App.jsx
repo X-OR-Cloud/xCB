@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import {
   LayoutDashboard, 
   Database, 
   BookOpen, 
@@ -713,11 +715,9 @@ const KnowledgeBase = () => {
   );
 };
 
-const AgentChat = ({ agent, onSendMessage }) => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: `Chào quản trị viên, tôi là ${agent.name}. Bạn cần hỗ trợ gì về ${agent.desc} hôm nay?`, sender: 'bot', time: '10:00' }
-  ]);
+const AgentChat = ({ agent, onSendMessage, messages, setMessages }) => {
   const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -726,14 +726,15 @@ const AgentChat = ({ agent, onSendMessage }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const handleSend = async () => {
     if (!inputValue.trim()) return;
     const userMsg = { id: Date.now(), text: inputValue, sender: 'user', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-    setMessages([...messages, userMsg]);
+    setMessages(prev => [...prev, userMsg]);
     setInputValue('');
-    
+    setIsTyping(true);
+
     try {
       const reply = await onSendMessage(agent.id, inputValue);
       const botMsg = {
@@ -745,6 +746,8 @@ const AgentChat = ({ agent, onSendMessage }) => {
       setMessages(prev => [...prev, botMsg]);
     } catch (err) {
       setMessages(prev => [...prev, { id: Date.now()+1, text: "Lỗi kết nối BOT. Hãy thử lại.", sender: 'bot', color: 'red' }]);
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -787,11 +790,15 @@ const AgentChat = ({ agent, onSendMessage }) => {
               </div>
               <div className="space-y-2">
                 <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
-                  m.sender === 'user' 
-                  ? 'bg-blue-600 text-white rounded-tr-none shadow-lg' 
+                  m.sender === 'user'
+                  ? 'bg-blue-600 text-white rounded-tr-none shadow-lg'
                   : 'bg-[var(--sidebar-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-tl-none shadow-sm'
                 }`}>
-                  {m.text}
+                  {m.sender === 'bot' ? (
+                    <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-blue-300">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+                    </div>
+                  ) : m.text}
                 </div>
                 <p className={`text-[10px] font-bold text-slate-600 ${m.sender === 'user' ? 'text-right' : 'text-left'}`}>
                   {m.time}
@@ -800,6 +807,22 @@ const AgentChat = ({ agent, onSendMessage }) => {
             </div>
           </div>
         ))}
+        {isTyping && (
+          <div className="flex justify-start">
+            <div className="flex gap-4 max-w-[70%]">
+              <div className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center bg-slate-800 border border-white/5">
+                <Bot size={14} className="text-blue-500" />
+              </div>
+              <div className="p-4 rounded-2xl rounded-tl-none bg-[var(--sidebar-bg)] border border-[var(--border-color)] shadow-sm">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={chatEndRef} />
       </div>
 
@@ -839,7 +862,7 @@ const AgentChat = ({ agent, onSendMessage }) => {
 
 // --- Layout & Main App ---
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = '/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -863,6 +886,12 @@ export default function App() {
   ]);
   const [files, setFiles] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [chatSessions, setChatSessions] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('xcb_chat_sessions');
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -871,6 +900,26 @@ export default function App() {
     }
     return true;
   });
+
+  // Persist chat sessions to sessionStorage
+  useEffect(() => {
+    try { sessionStorage.setItem('xcb_chat_sessions', JSON.stringify(chatSessions)); } catch {}
+  }, [chatSessions]);
+
+  const getMessages = (agentId, agentName, agentDesc) => {
+    if (!chatSessions[agentId]) {
+      return [{ id: 1, text: `Chào quản trị viên, tôi là ${agentName}. Bạn cần hỗ trợ gì về ${agentDesc} hôm nay?`, sender: 'bot', time: '10:00' }];
+    }
+    return chatSessions[agentId];
+  };
+
+  const setMessagesForAgent = (agentId) => (updater) => {
+    setChatSessions(prev => {
+      const current = prev[agentId] || [];
+      const next = typeof updater === 'function' ? updater(current) : updater;
+      return { ...prev, [agentId]: next };
+    });
+  };
 
   // Apply theme class
   useEffect(() => {
@@ -956,7 +1005,8 @@ export default function App() {
   const renderContent = () => {
     if (activeTab === 'chat' && activeAgentId) {
       const agent = agents.find(a => a.id === activeAgentId);
-      return <AgentChat agent={agent} onSendMessage={handleSendMessage} />;
+      const msgs = getMessages(activeAgentId, agent.name, agent.desc);
+      return <AgentChat agent={agent} onSendMessage={handleSendMessage} messages={msgs} setMessages={setMessagesForAgent(activeAgentId)} />;
     }
 
     switch(activeTab) {

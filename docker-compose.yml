@@ -6,26 +6,21 @@ services:
     container_name: xcb_app
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "8001:8000"
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - .:/app
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
 
   web:
-    build: 
+    build:
       context: ./web
     container_name: xcb_web
     restart: unless-stopped
     ports:
-      - "5173:5173"
-    volumes:
-      - ./web:/app
-      - /app/node_modules
+      - "81:80"
     depends_on:
       - app
 
@@ -38,7 +33,7 @@ services:
       POSTGRES_PASSWORD: xcb_password
       POSTGRES_DB: xcb_db
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -55,7 +50,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@xcb.local}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin123}
     ports:
-      - "127.0.0.1:5050:80"
+      - "127.0.0.1:5051:80"
     depends_on:
       - db
 
@@ -64,8 +59,8 @@ services:
     container_name: xcb_qdrant
     restart: unless-stopped
     ports:
-      - "127.0.0.1:6333:6333"
-      - "127.0.0.1:6334:6334"
+      - "127.0.0.1:6335:6333"
+      - "127.0.0.1:6336:6334"
     volumes:
       - qdrant_data:/qdrant/storage
 
@@ -74,7 +69,7 @@ services:
     container_name: xcb_redis
     restart: unless-stopped
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:6380:6379"
     volumes:
       - redis_data:/data
 
