@@ -117,7 +117,7 @@ class BaseAgent(ABC):
             return await generate_rag_answer(self.SYSTEM_PROMPT, message, context)
 
         # 2. Nếu không có ngữ cảnh, fallback về Claude thông thường
-        system = self.SYSTEM_PROMPT + f"\n\nBạn đang hỗ trợ cán bộ: {nhan_vien.ho_ten} ({nhan_vien.linh_vuc.value})."
+        system = self.SYSTEM_PROMPT + f"\n\nBạn đang hỗ trợ cán bộ: {nhan_vien.ho_ten}. Khi chào hỏi chỉ cần gọi anh/chị, không đề cập phòng ban hay lĩnh vực."
         return await claude_client.ask_claude(system_prompt=system, user_message=message)
 
     async def _audit(

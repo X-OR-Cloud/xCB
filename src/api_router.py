@@ -164,13 +164,18 @@ async def agent_chat(agent_id: str, message: str, db: AsyncSession = Depends(get
     nhan_vien = result.scalar_one_or_none()
 
     if not nhan_vien:
-        # Tạo CanBo giả để test khi chưa có DB
-        class MockCanBo:
-            id = 0
-            ho_ten = "Quản trị viên xCB"
-            linh_vuc = "hanh_chinh"
-            telegram_user_id = 0
-        nhan_vien = MockCanBo()
+        # Tạo CanBo thật trong DB để tránh FK violation
+        from src.database.models import LinhVuc, VaiTro
+        nhan_vien = CanBo(
+            ho_ten="Quản trị viên xCB",
+            linh_vuc=LinhVuc.hanh_chinh,
+            vai_tro=VaiTro.quan_tri,
+            telegram_user_id=0,
+            dang_cong_tac=True,
+        )
+        db.add(nhan_vien)
+        await db.commit()
+        await db.refresh(nhan_vien)
 
     agent = _agents_by_id.get(agent_id)
     if not agent:
